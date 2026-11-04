@@ -1,0 +1,1207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interactive Science study app for Camilo (grade 4, Aspaen Altamar): the atom, states of matter, changes of state, physical and chemical changes, the skeleton and the muscular system.">
+  <title>Science Mission 2</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2715%27%20fill%3D%27%232a9d8f%27/%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Arial%27%20font-weight%3D%27900%27%20font-size%3D%2734%27%20text-anchor%3D%27middle%27%20fill%3D%27%23fff%27%3ESc%3C/text%3E%3C/svg%3E">
+  <style>
+:root {
+  --navy: #15315b;
+  --navy-dark: #0c2344;
+  --accent: #2a9d8f;
+  --accent-light: #dff5f1;
+  --accent-ink: #17776b;
+  --yellow: #ffc857;
+  --ink: #18243a;
+  --muted: #64738a;
+  --paper: #f5f7fb;
+  --white: #fff;
+  --line: #dbe2ec;
+  --success: #17845d;
+  --error: #bd3d4d;
+  --radius: 18px;
+  --shadow: 0 18px 50px rgba(21, 49, 91, .09);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; color: var(--ink); background: var(--paper); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 16px; line-height: 1.6; }
+button, select { font: inherit; }
+button { cursor: pointer; }
+
+.topbar { height: 84px; padding: 0 32px; background: var(--navy-dark); color: white; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 20; }
+.brand { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 13px; }
+.brand-mark { width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; background: var(--yellow); color: var(--navy-dark); font-weight: 900; font-size: 1.35rem; letter-spacing: -.04em; }
+.brand strong, .brand small, .brand small b { display: block; }
+.brand strong { font-size: 1.05rem; letter-spacing: .01em; }
+.brand small { color: #bfcce0; font-size: .66rem; line-height: 1.3; letter-spacing: .03em; }
+.brand small b { font-weight: 750; }
+.progress-summary { width: min(340px, 38vw); font-size: .82rem; color: #d7e2ef; }
+.progress-track, .question-progress { height: 7px; background: rgba(255,255,255,.16); border-radius: 99px; overflow: hidden; }
+.progress-track { margin-top: 7px; }
+.progress-track span, .question-progress span { display: block; height: 100%; width: 0; background: var(--yellow); border-radius: inherit; transition: width .35s ease; }
+
+.app-shell { min-height: calc(100vh - 84px); display: grid; grid-template-columns: 285px 1fr; }
+.sidebar { padding: 30px 20px; background: white; border-right: 1px solid var(--line); position: sticky; top: 84px; height: calc(100vh - 84px); overflow-y: auto; }
+.eyebrow, .card-label, .week-label { text-transform: uppercase; letter-spacing: .13em; font-weight: 800; font-size: .75rem; }
+.eyebrow { margin: 0 12px 12px; color: var(--muted); }
+#topicNav { display: grid; gap: 5px; }
+.topic-button { width: 100%; border: 0; background: transparent; color: #47566e; padding: 11px 12px; border-radius: 12px; text-align: left; display: grid; grid-template-columns: 28px 1fr 18px; gap: 9px; align-items: center; font-size: .89rem; line-height: 1.25; }
+.topic-button:hover { background: #f0f5fa; }
+.topic-button.active { color: var(--navy); background: var(--accent-light); font-weight: 750; }
+.topic-index { color: #7d899a; font-variant-numeric: tabular-nums; }
+.topic-status { width: 15px; height: 15px; border-radius: 50%; border: 2px solid #bac5d2; }
+.topic-status.done { border-color: var(--success); background: var(--success); box-shadow: inset 0 0 0 3px white; }
+.reset-button { border: 0; background: none; color: var(--muted); padding: 14px 12px; margin-top: 18px; font-size: .82rem; }
+.reset-button:hover { color: var(--error); }
+.reset-button.armed { color: var(--error); font-weight: 800; }
+
+.main-content { width: min(100%, 1040px); margin: 0 auto; padding: 48px 54px 70px; }
+.mobile-topic-picker { display: none; }
+.lesson-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 28px; margin-bottom: 28px; }
+.week-label { color: var(--accent-ink); margin: 0 0 7px; }
+h1 { margin: 0; font-size: clamp(2.1rem, 4vw, 3.5rem); line-height: 1.04; letter-spacing: -.045em; color: var(--navy-dark); max-width: 760px; }
+.topic-summary { color: var(--muted); font-size: 1.08rem; max-width: 720px; margin: 14px 0 0; }
+.topic-number { font-size: 5.4rem; line-height: .9; font-weight: 900; color: #e1e7ef; letter-spacing: -.08em; }
+
+.mode-tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--line); margin-bottom: 28px; }
+.mode-tab { border: 0; background: none; padding: 12px 18px; color: var(--muted); border-bottom: 3px solid transparent; font-weight: 750; }
+.mode-tab.active { color: var(--navy); border-color: var(--accent); }
+.mode-tab span { font-size: .75rem; color: var(--success); margin-left: 5px; }
+.hidden { display: none !important; }
+
+.definition-card, .content-card, .question-card, .quiz-intro, .quiz-result, .lesson-visual { background: white; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+.definition-card { padding: 26px 30px; border-left: 7px solid var(--accent); }
+.card-label { color: var(--accent-ink); }
+.definition-card p { margin: 7px 0 0; font-size: 1.25rem; line-height: 1.5; font-weight: 650; }
+.definition-card p b, .content-card b, .example-card b, .tip-card b { color: var(--accent-ink); }
+.example-card b { color: var(--yellow); }
+.lesson-visual { margin: 20px 0; padding: 25px 28px 28px; }
+.lesson-visual h2 { margin: 0; color: var(--navy); }
+.visual-block + .visual-block { margin-top: 26px; padding-top: 22px; border-top: 1px dashed var(--line); }
+.visual-block > p { margin: 3px 0 18px; color: var(--muted); }
+.info-icon .flag { width: 40px; margin: 0 auto 4px; }
+.lesson-visual > p { margin: 3px 0 18px; color: var(--muted); }
+.lesson-grid { display: grid; grid-template-columns: 1.18fr .82fr; gap: 20px; margin: 20px 0; }
+.content-card { padding: 26px 28px; box-shadow: none; }
+.content-card h2, .question-card h2, .quiz-intro h2, .quiz-result h2 { color: var(--navy); margin: 0 0 16px; line-height: 1.25; }
+.steps-list { list-style: none; padding: 0; margin: 0; counter-reset: lesson-step; }
+.steps-list li { counter-increment: lesson-step; display: grid; grid-template-columns: 30px 1fr; gap: 12px; margin-top: 14px; }
+.steps-list li::before { content: counter(lesson-step); width: 28px; height: 28px; display: grid; place-items: center; border-radius: 9px; background: var(--navy); color: white; font-weight: 800; font-size: .82rem; }
+.example-card { background: var(--navy); color: #edf4ff; border: 0; position: relative; overflow: hidden; }
+.example-card::after { content: "“"; position: absolute; right: 18px; bottom: -55px; font-family: Georgia, serif; font-size: 12rem; color: rgba(255,255,255,.08); }
+.example-card h2 { color: var(--yellow); }
+.example-card p { position: relative; z-index: 1; margin: 0; }
+.example-card .flag { vertical-align: middle; width: 28px; height: auto; margin-right: 4px; border-radius: 3px; }
+.tip-card { display: flex; gap: 16px; align-items: flex-start; padding: 20px 23px; border-radius: 15px; background: #fff6d9; border: 1px solid #f4dda0; }
+.tip-card > span { color: #aa6d00; font-size: 1.4rem; }
+.tip-card strong { color: #765000; }
+.tip-card p { margin: 2px 0 0; }
+.panel-actions { margin-top: 26px; display: flex; justify-content: flex-end; }
+
+.primary-button, .secondary-button { border-radius: 12px; padding: 12px 20px; font-weight: 800; border: 2px solid var(--navy); }
+.primary-button { background: var(--navy); color: white; }
+.primary-button:hover { background: var(--accent); border-color: var(--accent); }
+.secondary-button { background: white; color: var(--navy); }
+.secondary-button:hover { background: #edf3f8; }
+
+.quiz-intro, .quiz-result { text-align: center; padding: 50px 28px; }
+.quiz-icon { width: 70px; height: 70px; display: grid; place-items: center; border-radius: 22px; margin: 0 auto 18px; background: var(--accent-light); color: var(--accent-ink); font-size: 2rem; font-weight: 900; transform: rotate(-4deg); }
+.quiz-intro p { color: var(--muted); margin: -5px auto 24px; max-width: 520px; }
+.quiz-meta { display: flex; justify-content: space-between; color: var(--muted); font-weight: 700; font-size: .88rem; }
+.question-progress { background: #dce4ee; margin: 9px 0 20px; }
+.question-progress span { background: var(--accent); }
+.question-visual { margin-bottom: 20px; padding: 18px 20px; background: white; border: 1px solid var(--line); border-radius: var(--radius); }
+.question-visual-title { margin: 0 0 9px; color: var(--muted); font-size: .88rem; font-weight: 750; }
+.question-card { padding: 30px; }
+.question-context { display: inline-block; margin: 0 0 13px; padding: 9px 12px; border-radius: 10px; background: #f0f4f8; color: #526078; }
+.question-context .flag { width: 30px; height: auto; vertical-align: middle; margin-right: 6px; border-radius: 3px; }
+.answer-list { display: grid; gap: 11px; margin: 22px 0; }
+.answer-button { text-align: left; border: 2px solid var(--line); background: white; color: var(--ink); border-radius: 13px; padding: 14px 16px; display: flex; gap: 13px; align-items: flex-start; }
+.answer-button:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-light); }
+.answer-button .flag { width: 34px; height: auto; vertical-align: middle; border-radius: 3px; margin-right: 6px; }
+.answer-letter { flex: 0 0 27px; width: 27px; height: 27px; display: grid; place-items: center; border-radius: 8px; background: #e9eef5; font-weight: 850; font-size: .82rem; }
+.answer-button.correct { border-color: var(--success); background: #ecfaf4; }
+.answer-button.wrong { border-color: var(--error); background: #fff0f2; }
+.answer-button.correct .answer-letter { background: var(--success); color: white; }
+.answer-button.wrong .answer-letter { background: var(--error); color: white; }
+.feedback { padding: 15px 17px; border-radius: 12px; margin-bottom: 18px; }
+.feedback.good { background: #e8f8f0; color: #126245; }
+.feedback.bad { background: #fff0f2; color: #88313c; }
+.feedback strong { display: block; }
+.result-score { width: 106px; height: 106px; display: grid; place-items: center; margin: 0 auto 20px; border-radius: 50%; background: var(--navy); color: white; font-size: 1.85rem; font-weight: 900; border: 8px solid var(--accent-light); }
+.quiz-result p { color: var(--muted); }
+.result-actions { display: flex; justify-content: center; gap: 10px; margin-top: 24px; }
+
+/* ---- visuals ---- */
+.flag { width: 100%; height: auto; border-radius: 6px; display: block; }
+.big-flag { display: grid; justify-items: center; gap: 8px; }
+.big-flag .flag { width: min(240px, 60%); box-shadow: 0 8px 22px rgba(21,49,91,.15); }
+.big-flag span { font-weight: 800; color: var(--navy); }
+.flag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 12px; }
+.flag-card { padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: #f8fafc; display: grid; gap: 3px; text-align: center; }
+.flag-card .flag { margin-bottom: 6px; }
+.flag-card strong { color: var(--navy); font-size: .95rem; }
+.flag-card span { color: var(--accent-ink); font-weight: 750; font-size: .84rem; }
+.flag-card em { color: var(--muted); font-style: normal; font-size: .8rem; }
+.table-wrap { overflow-x: auto; }
+.study-table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+.study-table th { text-align: left; padding: 10px 12px; background: var(--navy); color: white; font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; }
+.study-table th:first-child { border-radius: 10px 0 0 0; } .study-table th:last-child { border-radius: 0 10px 0 0; }
+.study-table td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.study-table td.first { font-weight: 800; color: var(--navy); white-space: nowrap; }
+.study-table tr:nth-child(even) td { background: #f8fafc; }
+.study-table .flag { width: 30px; display: inline-block; vertical-align: middle; margin-right: 8px; border-radius: 3px; }
+.study-table mark { background: var(--accent-light); color: var(--accent-ink); padding: 1px 5px; border-radius: 5px; font-weight: 800; }
+.info-cards { display: grid; gap: 12px; }
+.info-cards.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.info-cards.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.info-cards.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.info-card { --card: var(--accent); padding: 16px 17px; border: 1px solid var(--line); border-top: 5px solid var(--card); border-radius: 14px; background: #f8fafc; }
+.info-icon { display: block; font-size: 1.6rem; margin-bottom: 6px; }
+.info-card strong { display: block; color: var(--navy); font-size: 1rem; }
+.info-card p { margin: 5px 0 0; color: #45546b; font-size: .9rem; line-height: 1.45; }
+.info-card small { display: block; margin-top: 8px; color: var(--muted); font-size: .8rem; }
+.compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.compare-col { --card: #64748b; padding: 18px; border-radius: 14px; border: 2px solid var(--card); background: white; }
+.compare-col strong { display: block; color: var(--card); font-size: 1.05rem; }
+.compare-col small { display: block; color: var(--muted); margin-bottom: 8px; }
+.compare-col ul { margin: 8px 0 0; padding-left: 18px; color: #45546b; }
+.compare-col li { margin-top: 5px; }
+.atom-stage { display: grid; gap: 10px; }
+.atom-svg { width: 100%; max-width: 560px; margin: 0 auto; display: block; }
+.atom-svg .orbit { fill: none; stroke: #9ab0c3; stroke-width: 2.5; }
+.atom-svg .lbl { font-weight: 850; font-size: 13px; fill: var(--navy); }
+.atom-svg .sub { font-size: 11px; fill: var(--muted); font-weight: 650; }
+.atom-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: center; font-size: .88rem; font-weight: 700; color: #45546b; }
+.atom-legend i { display: inline-block; width: 13px; height: 13px; border-radius: 50%; margin-right: 6px; vertical-align: -2px; }
+.states-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.states-grid.single { grid-template-columns: minmax(200px, 320px); justify-content: center; }
+.state-card { border: 2px solid var(--line); border-radius: 16px; padding: 14px; background: white; text-align: center; }
+.state-card.hi { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-light); }
+.state-card header { display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 1.05rem; color: var(--navy); margin-bottom: 8px; }
+.state-card p { margin: 10px 0 0; font-size: .88rem; color: #45546b; line-height: 1.45; }
+.particles { width: 100%; max-width: 170px; display: block; margin: 0 auto; background: #eef6fb; border: 2px solid #b8d4e6; border-radius: 10px; }
+.particles circle { fill: #2a7fbf; }
+.particles.solid circle { animation: vib .6s ease-in-out infinite alternate; animation-delay: calc(var(--i) * -37ms); }
+.particles.liquid circle { animation: slide 2.6s ease-in-out infinite alternate; animation-delay: calc(var(--i) * -300ms); }
+.particles.gas circle { animation: fly 2.2s ease-in-out infinite alternate; animation-delay: calc(var(--i) * -450ms); }
+@keyframes vib { from { transform: translate(-1px, -1px); } to { transform: translate(1px, 1px); } }
+@keyframes slide { from { transform: translate(-6px, 2px); } 50% { transform: translate(4px, -4px); } to { transform: translate(7px, 3px); } }
+@keyframes fly { from { transform: translate(-16px, 12px); } 33% { transform: translate(10px, -14px); } 66% { transform: translate(-8px, -10px); } to { transform: translate(18px, 8px); } }
+.bars { display: grid; gap: 12px; }
+.bar-row { display: grid; grid-template-columns: 150px 1fr 110px; gap: 12px; align-items: center; font-weight: 750; }
+.bar-label { color: var(--navy); }
+.bar-track { height: 26px; background: #e6ecf3; border-radius: 8px; overflow: hidden; }
+.bar-track span { display: block; height: 100%; border-radius: 8px; }
+.bar-value { color: #45546b; font-size: .92rem; }
+.bars-note { margin: 4px 0 0; color: var(--muted); font-size: .88rem; }
+.orgchart { display: grid; gap: 14px; }
+.org-top, .org-node { --card: var(--navy); padding: 14px 16px; border-radius: 14px; border: 2px solid var(--card); background: white; }
+.org-top { text-align: center; background: var(--card); color: white; }
+.org-top strong { display: block; font-size: 1.05rem; } .org-top span { font-size: .88rem; opacity: .9; }
+.org-branches { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.org-node strong { display: block; color: var(--card); } .org-node span { font-size: .88rem; color: #45546b; }
+
+@media (max-width: 850px) {
+  .topbar { padding: 0 18px; }
+  .progress-summary { width: 210px; }
+  .app-shell { display: block; }
+  .sidebar { display: none; }
+  .main-content { padding: 30px 22px 55px; }
+  .mobile-topic-picker { display: grid; gap: 6px; margin-bottom: 28px; color: var(--muted); font-size: .82rem; font-weight: 750; }
+  .mobile-topic-picker select { width: 100%; background: white; border: 1px solid var(--line); border-radius: 12px; padding: 12px; color: var(--ink); }
+  .lesson-grid { grid-template-columns: 1fr; }
+  .topic-number { display: none; }
+  .info-cards.cols-3, .info-cards.cols-4 { grid-template-columns: repeat(2, 1fr); }
+  .states-grid { grid-template-columns: 1fr; }
+  .bar-row { grid-template-columns: 1fr; gap: 4px; }
+}
+@media (max-width: 560px) {
+  .topbar { height: auto; min-height: 78px; gap: 12px; padding: 10px 16px; }
+  .brand small { display: none; }
+  .progress-summary { width: 135px; font-size: .7rem; text-align: right; }
+  .app-shell { min-height: calc(100vh - 78px); }
+  h1 { font-size: 2.1rem; }
+  .topic-summary { font-size: 1rem; }
+  .definition-card, .content-card, .question-card, .lesson-visual { padding: 20px; }
+  .definition-card p { font-size: 1.1rem; }
+  .mode-tab { flex: 1; }
+  .panel-actions .primary-button { width: 100%; }
+  .result-actions { flex-direction: column; }
+  .info-cards.cols-2, .info-cards.cols-3, .info-cards.cols-4 { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+}
+
+/* ---- number line ---- */
+.numberline { width: 100%; max-width: 720px; display: block; margin: 0 auto; }
+.nl-axis { stroke: #334155; stroke-width: 3; } .nl-arrow { fill: #334155; }
+.nl-tick { stroke: #334155; stroke-width: 2; } .nl-tick.zero { stroke-width: 4; }
+.nl-label { font-size: 15px; font-weight: 700; fill: #334155; } .nl-label.neg { fill: #bd3d4d; } .nl-label.hi { fill: var(--accent-ink); font-size: 17px; font-weight: 900; }
+.nl-jump { fill: none; stroke-width: 3; stroke-dasharray: 6 4; } .nl-jump-label { font-size: 15px; font-weight: 800; } .nl-point-label { font-size: 12px; font-weight: 800; }
+/* ---- scratch blocks ---- */
+.scripts-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+.script > strong { display: block; color: var(--navy); margin-bottom: 8px; }
+.script > small { display: block; margin-top: 8px; color: var(--muted); font-size: .82rem; }
+.script-stack { display: grid; gap: 3px; justify-content: start; }
+.sb, .sb-c .sb-top { color: #fff; font-weight: 700; font-size: .86rem; padding: 7px 12px; border-radius: 6px; width: max-content; max-width: 100%; box-shadow: inset 0 -2px 0 rgba(0,0,0,.15); }
+.sb.hat { border-radius: 22px 22px 6px 6px; padding-top: 10px; }
+.sb-c { border-radius: 6px; width: max-content; max-width: 100%; }
+.sb-c .sb-top { box-shadow: none; border-radius: 6px 6px 0 0; }
+.sb-inner { margin-left: 14px; background: #f5f7fb; padding: 3px 4px 3px 6px; display: grid; gap: 3px; justify-content: start; }
+.sb-bottom { height: 12px; border-radius: 0 0 6px 6px; }
+.blk-inline { display: inline-block; padding: 2px 9px; border-radius: 6px; color: #fff; font-weight: 700; font-size: .82rem; white-space: nowrap; box-shadow: inset 0 -2px 0 rgba(0,0,0,.15); vertical-align: middle; }
+.cat-movimiento { background: #4C97FF; } .cat-apariencia { background: #9966FF; } .cat-sonido { background: #CF63CF; }
+.cat-eventos { background: #FFBF00; color: #3a2a00 !important; } .cat-eventos .sb-top { color: #3a2a00; }
+.cat-control { background: #FFAB19; } .cat-sensores { background: #5CB1D6; } .cat-operadores { background: #59C059; } .cat-variables { background: #FF8C1A; } .cat-lapiz { background: #0FBD8C; }
+.info-cards.cols-5 { grid-template-columns: repeat(5, 1fr); }
+.info-cards .info-icon svg { width: 40px; margin: 0 auto 4px; }
+@media (max-width: 850px) { .info-cards.cols-5 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .info-cards.cols-5 { grid-template-columns: 1fr; } }
+
+/* ---- reading passage ---- */
+.passage { padding: 22px 26px; border-radius: 14px; background: #fffdf5; border: 1px solid #efe4c4; font-family: Georgia, "Times New Roman", serif; font-size: 1.08rem; line-height: 1.7; color: #2b3444; }
+.passage h3 { margin: 0 0 10px; font-family: inherit; color: var(--navy); font-size: 1.35rem; }
+.passage p { margin: 0 0 12px; } .passage p:last-child { margin-bottom: 0; }
+.passage b { color: var(--accent-ink); }
+
+/* ---- Science 2 visuals: changes-of-state cycle, classification chart, skeleton, arm muscles ---- */
+.cycle { display: flex; align-items: stretch; gap: 10px; }
+.cycle-state { flex: 1; min-width: 0; display: grid; place-items: center; gap: 2px; padding: 14px 8px; border: 2px solid var(--line); border-radius: 14px; background: #f8fafc; color: var(--navy); font-weight: 900; }
+.cycle-state span { font-size: 1.6rem; }
+.cycle-state.solid { border-color: #2a7fbf; } .cycle-state.liquid { border-color: #2a9d8f; } .cycle-state.gas { border-color: #9ab0c3; }
+.cycle-arrows { display: grid; align-content: center; gap: 8px; text-align: center; font-size: .82rem; font-weight: 800; }
+.cycle-arrows span { display: flex; align-items: center; justify-content: center; gap: 4px; }
+.cycle-arrows i { font-style: normal; font-size: 1.4rem; line-height: 1; }
+.warm { color: #c2410c; } .cool { color: #1d4ed8; }
+.cycle-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 24px; margin-top: 14px; font-weight: 750; font-size: .9rem; }
+@media (max-width: 560px) {
+  .cycle { flex-direction: column; }
+  .cycle-arrows { grid-auto-flow: column; justify-content: center; gap: 24px; }
+  .cycle-arrows i { display: inline-block; transform: rotate(90deg); }
+}
+
+.decision { display: grid; gap: 16px; }
+.d-q { display: flex; gap: 10px; align-items: center; font-weight: 800; color: var(--navy); }
+.d-q span { flex: 0 0 26px; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 8px; background: var(--navy); color: #fff; font-size: .8rem; }
+.d-answers { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 0 36px; }
+.d-leaf, .d-next { padding: 8px 12px; border-radius: 10px; border: 2px solid #b8c4d3; font-size: .9rem; color: #45546b; background: #fff; }
+.d-leaf.gas { border-color: #9ab0c3; background: #eef2f8; } .d-leaf.liquid { border-color: #2a7fbf; background: #eaf4fb; } .d-leaf.solid { border-color: #e4572e; background: #fdeee9; }
+.d-leaf strong { color: var(--navy); }
+.d-leaf em { font-style: normal; margin-left: 6px; text-transform: uppercase; font-size: .72rem; letter-spacing: .08em; font-weight: 800; }
+.d-next { border-style: dashed; color: var(--muted); }
+
+.skel { width: 100%; max-width: 400px; display: block; margin: 0 auto; }
+.skel .bone { --f: #f1e2b6; --s: #9a7b45; }
+.skel .out { stroke: var(--s); stroke-linecap: round; fill: none; }
+.skel .in { stroke: var(--f); stroke-linecap: round; fill: none; }
+.skel .shape > * { fill: var(--f); stroke: var(--s); stroke-width: 2; }
+.skel .hi,
+.skel:has(.t-skull:hover) .b-skull, .skel:has(.t-skull:focus) .b-skull,
+.skel:has(.t-vertebra:hover) .b-vertebra, .skel:has(.t-vertebra:focus) .b-vertebra,
+.skel:has(.t-sternum:hover) .b-sternum, .skel:has(.t-sternum:focus) .b-sternum,
+.skel:has(.t-rib:hover) .b-rib, .skel:has(.t-rib:focus) .b-rib,
+.skel:has(.t-humerus:hover) .b-humerus, .skel:has(.t-humerus:focus) .b-humerus,
+.skel:has(.t-radius:hover) .b-radius, .skel:has(.t-radius:focus) .b-radius,
+.skel:has(.t-ulna:hover) .b-ulna, .skel:has(.t-ulna:focus) .b-ulna,
+.skel:has(.t-pelvis:hover) .b-pelvis, .skel:has(.t-pelvis:focus) .b-pelvis,
+.skel:has(.t-femur:hover) .b-femur, .skel:has(.t-femur:focus) .b-femur,
+.skel:has(.t-patella:hover) .b-patella, .skel:has(.t-patella:focus) .b-patella,
+.skel:has(.t-tibia:hover) .b-tibia, .skel:has(.t-tibia:focus) .b-tibia,
+.skel:has(.t-fibula:hover) .b-fibula, .skel:has(.t-fibula:focus) .b-fibula { --f: #ffd166; --s: #c77d00; }
+.skel .tag line { stroke: #8a97a8; stroke-width: 1.5; }
+.skel .tag text { font-size: 13px; font-weight: 800; letter-spacing: .03em; cursor: pointer; }
+.skel .tag:hover text, .skel .tag:focus text { text-decoration: underline; }
+.skel .tag:focus { outline: none; }
+
+.arm-toggle { position: relative; }
+.arm-toggle input { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
+.arm-toggle label { display: inline-block; margin: 0 8px 12px 0; padding: 8px 14px; border-radius: 999px; border: 2px solid var(--line); font-weight: 800; color: var(--muted); cursor: pointer; background: #fff; }
+#armBend:checked ~ label[for="armBend"], #armStraight:checked ~ label[for="armStraight"] { border-color: var(--accent); background: var(--accent-light); color: var(--accent-ink); }
+.arm-views .arm-panel + .arm-panel { display: none; }
+#armStraight:checked ~ .arm-views .arm-panel:first-child { display: none; }
+#armStraight:checked ~ .arm-views .arm-panel + .arm-panel { display: block; }
+.arm-panel svg { width: 100%; max-width: 440px; display: block; margin: 0 auto; }
+.ab { stroke: #e8d9b0; stroke-width: 12; stroke-linecap: round; }
+.aj, .ah { fill: #d9c592; }
+.at { stroke: #f0d98a; stroke-width: 5; stroke-linecap: round; }
+.am.on { fill: #e4572e; } .am.off { fill: #f6c4b4; }
+.al { font-size: 13px; font-weight: 900; } .al.on { fill: #fff; } .al.off { fill: #8a3b25; }
+.as { font-size: 10px; font-weight: 700; fill: #7a6a2a; }
+.arm-facts { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 10px; }
+.arm-facts span { padding: 7px 12px; border-radius: 10px; border: 2px solid #d6dde7; background: #f3f6fa; color: #45546b; font-size: .9rem; }
+.arm-facts span.on { border-color: #e4572e; background: #fdeee9; color: #9a2f12; }
+
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Go to the first topic">
+      <span class="brand-mark" aria-hidden="true">Sc</span>
+      <span class="brand-copy">
+        <strong>Science Mission 2</strong>
+        <small><b>SCIENCE EVALUATION · NOV 2026</b><b>GRADE 4 - Aspaen Altamar</b></small>
+      </span>
+    </a>
+    <div class="progress-summary" aria-live="polite">
+      <span id="progressText"></span>
+      <div class="progress-track"><span id="progressBar"></span></div>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Topics">
+      <p class="eyebrow">Topics</p>
+      <nav id="topicNav"></nav>
+      <button class="reset-button" id="resetProgress" type="button">Reset progress</button>
+    </aside>
+
+    <main class="main-content">
+      <div class="mobile-topic-picker">
+        <label for="topicSelect">Choose a topic</label>
+        <select id="topicSelect"></select>
+      </div>
+
+      <section class="lesson-header">
+        <div>
+          <p class="week-label" id="weekLabel"></p>
+          <h1 id="topicTitle"></h1>
+          <p class="topic-summary" id="topicSummary"></p>
+        </div>
+        <div class="topic-number" id="topicNumber" aria-hidden="true"></div>
+      </section>
+
+      <div class="mode-tabs" role="tablist" aria-label="Study mode">
+        <button class="mode-tab active" id="learnTab" type="button" role="tab" aria-selected="true">Learn</button>
+        <button class="mode-tab" id="practiceTab" type="button" role="tab" aria-selected="false">Practice <span id="topicBest"></span></button>
+      </div>
+
+      <section id="learnPanel" class="panel" role="tabpanel">
+        <article class="definition-card">
+          <span class="card-label">Key idea</span>
+          <p id="topicDefinition"></p>
+        </article>
+
+        <section id="lessonVisual" class="lesson-visual hidden" aria-label="Visual example"></section>
+
+        <div class="lesson-grid">
+          <article class="content-card">
+            <h2 id="stepsTitle"></h2>
+            <ol class="steps-list" id="topicSteps"></ol>
+          </article>
+          <article class="content-card example-card">
+            <h2 id="exampleTitle"></h2>
+            <p id="topicExample"></p>
+          </article>
+        </div>
+
+        <article class="tip-card">
+          <span aria-hidden="true">✦</span>
+          <div><strong>Memory trick</strong><p id="topicTip"></p></div>
+        </article>
+
+        <div class="panel-actions">
+          <button class="primary-button" id="startPractice" type="button">Start the exercises</button>
+        </div>
+      </section>
+
+      <section id="practicePanel" class="panel hidden" role="tabpanel">
+        <div id="quizIntro" class="quiz-intro">
+          <span class="quiz-icon" aria-hidden="true">✓</span>
+          <h2>Check what you learned</h2>
+          <p id="quizIntroText"></p>
+          <button class="primary-button" id="beginQuiz" type="button">Begin</button>
+        </div>
+
+        <div id="quizArea" class="hidden">
+          <div class="quiz-meta">
+            <span id="questionCount"></span>
+            <span id="liveScore"></span>
+          </div>
+          <div class="question-progress"><span id="questionBar"></span></div>
+          <div id="questionVisual" class="question-visual hidden"></div>
+          <article class="question-card">
+            <p class="question-context" id="questionContext"></p>
+            <h2 id="questionPrompt"></h2>
+            <div class="answer-list" id="answerList"></div>
+            <div class="feedback hidden" id="feedback" aria-live="polite"></div>
+            <button class="primary-button hidden" id="nextQuestion" type="button">Next question</button>
+          </article>
+        </div>
+
+        <div id="quizResult" class="quiz-result hidden" aria-live="polite">
+          <div class="result-score" id="resultScore"></div>
+          <h2 id="resultTitle"></h2>
+          <p id="resultMessage"></p>
+          <div class="result-actions">
+            <button class="secondary-button" id="retryQuiz" type="button">Try again</button>
+            <button class="primary-button" id="nextTopic" type="button">Next topic</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+/* ---------- Flags (simplified inline SVG) ---------- */
+function star(cx, cy, r, points = 5, inner = 0.42) {
+  const pts = [];
+  for (let i = 0; i < points * 2; i++) {
+    const rad = i % 2 === 0 ? r : r * inner;
+    const a = -Math.PI / 2 + (i * Math.PI) / points;
+    pts.push(`${(cx + rad * Math.cos(a)).toFixed(1)},${(cy + rad * Math.sin(a)).toFixed(1)}`);
+  }
+  return `<polygon points="${pts.join(" ")}" fill="#fff"/>`;
+}
+const FLAGS = {
+  co: `<rect width="60" height="20" fill="#FCD116"/><rect y="20" width="60" height="10" fill="#003893"/><rect y="30" width="60" height="10" fill="#CE1126"/>`,
+  us: `<rect width="60" height="40" fill="#fff"/>${[0,2,4,6,8,10,12].map(i=>`<rect y="${(i*40/13).toFixed(2)}" width="60" height="${(40/13).toFixed(2)}" fill="#B22234"/>`).join("")}<rect width="24" height="21.5" fill="#3C3B6E"/>${[0,1,2,3].map(r=>[0,1,2,3,4].map(c=>`<circle cx="${3+c*4.5}" cy="${3+r*5}" r="1.1" fill="#fff"/>`).join("")).join("")}`,
+  br: `<rect width="60" height="40" fill="#009C3B"/><polygon points="30,4 56,20 30,36 4,20" fill="#FFDF00"/><circle cx="30" cy="20" r="10" fill="#002776"/><path d="M21 17.5 Q30 15 39 20" stroke="#fff" stroke-width="1.6" fill="none"/>`,
+  fr: `<rect width="20" height="40" fill="#0055A4"/><rect x="20" width="20" height="40" fill="#fff"/><rect x="40" width="20" height="40" fill="#EF4135"/>`,
+  es: `<rect width="60" height="40" fill="#AA151B"/><rect y="10" width="60" height="20" fill="#F1BF00"/><rect x="14" y="16" width="7" height="9" rx="1.5" fill="#AA151B"/>`,
+  it: `<rect width="20" height="40" fill="#009246"/><rect x="20" width="20" height="40" fill="#fff"/><rect x="40" width="20" height="40" fill="#CE2B37"/>`,
+  cn: `<rect width="60" height="40" fill="#DE2910"/>${star(11,11,6.5).replace('#fff','#FFDE00')}${[[22,4.5],[26,9],[26,14.5],[22,19]].map(([x,y])=>star(x,y,2,5).replace('#fff','#FFDE00')).join("")}`,
+  mx: `<rect width="20" height="40" fill="#006847"/><rect x="20" width="20" height="40" fill="#fff"/><rect x="40" width="20" height="40" fill="#CE1126"/><circle cx="30" cy="20" r="4.5" fill="#8a5a2b"/><circle cx="30" cy="22" r="1.6" fill="#5b8a3c"/>`,
+  jp: `<rect width="60" height="40" fill="#fff"/><circle cx="30" cy="20" r="12" fill="#BC002D"/>`,
+  pe: `<rect width="20" height="40" fill="#D91023"/><rect x="20" width="20" height="40" fill="#fff"/><rect x="40" width="20" height="40" fill="#D91023"/>`,
+  nl: `<rect width="60" height="13.4" fill="#AE1C28"/><rect y="13.3" width="60" height="13.4" fill="#fff"/><rect y="26.6" width="60" height="13.4" fill="#21468B"/>`,
+  de: `<rect width="60" height="13.4" fill="#000"/><rect y="13.3" width="60" height="13.4" fill="#DD0000"/><rect y="26.6" width="60" height="13.4" fill="#FFCE00"/>`,
+  gb: `<rect width="60" height="40" fill="#012169"/><path d="M0 0L60 40M60 0L0 40" stroke="#fff" stroke-width="8"/><path d="M0 0L60 40M60 0L0 40" stroke="#C8102E" stroke-width="3"/><path d="M30 0V40M0 20H60" stroke="#fff" stroke-width="12"/><path d="M30 0V40M0 20H60" stroke="#C8102E" stroke-width="6"/>`,
+  ca: `<rect width="60" height="40" fill="#fff"/><rect width="15" height="40" fill="#D80621"/><rect x="45" width="15" height="40" fill="#D80621"/><path d="M30 8l2.2 4.4 2.8-1.2-1 5.4 3.6-1.6-.8 3.2 4.4 1.6-2 1.6 1.2 2.4-5.4-.8.4 6h-1.8v-3.6h-6V33h-1.8l.4-6-5.4.8 1.2-2.4-2-1.6 4.4-1.6-.8-3.2 3.6 1.6-1-5.4 2.8 1.2z" fill="#D80621"/>`,
+  eg: `<rect width="60" height="13.4" fill="#CE1126"/><rect y="13.3" width="60" height="13.4" fill="#fff"/><rect y="26.6" width="60" height="13.4" fill="#000"/><path d="M30 14.5l-4 4.5 1.5 6h5l1.5-6z" fill="#C09300"/>`,
+  au: `<rect width="60" height="40" fill="#012169"/><g transform="scale(.5)"><path d="M0 0L60 40M60 0L0 40" stroke="#fff" stroke-width="8"/><path d="M0 0L60 40M60 0L0 40" stroke="#C8102E" stroke-width="3"/><path d="M30 0V40M0 20H60" stroke="#fff" stroke-width="12"/><path d="M30 0V40M0 20H60" stroke="#C8102E" stroke-width="6"/></g>${star(15,31,5.5,7,0.5)}${star(45,8,2.2,7,0.5)}${star(38,17,2.2,7,0.5)}${star(52,16,2.2,7,0.5)}${star(46,30,2.2,7,0.5)}${star(50,22,1.4,5)}`,
+  za: `<rect width="60" height="40" fill="#fff"/><rect width="60" height="13.4" fill="#E03C31"/><rect y="26.6" width="60" height="13.4" fill="#001489"/><path d="M0 0L28 20 0 40V0z" fill="#fff"/><path d="M0 16v8h30l30 16v-8l-24-12 24-12V0L30 16z" fill="#007749"/><path d="M0 16.6 L26 20 0 23.4z" fill="#000"/><path d="M0 12 L30 20 0 28" fill="none" stroke="#FFB81C" stroke-width="3"/>`,
+  qa: `<rect width="60" height="40" fill="#8A1538"/><path d="M0 0h18l4 2.2-4 2.2 4 2.2-4 2.2 4 2.2-4 2.3 4 2.2-4 2.2 4 2.2-4 2.2 4 2.2-4 2.2 4 2.2-4 2.2 4 2.2-4 2.3 4 2.2L18 40H0z" fill="#fff"/>`,
+  jo: `<rect width="60" height="13.4" fill="#000"/><rect y="13.3" width="60" height="13.4" fill="#fff"/><rect y="26.6" width="60" height="13.4" fill="#007A3D"/><polygon points="0,0 30,20 0,40" fill="#CE1126"/>${star(10,20,3.5,7,0.5)}`,
+  pt: `<rect width="60" height="40" fill="#FF0000"/><rect width="24" height="40" fill="#006600"/><circle cx="24" cy="20" r="7" fill="#FFCC00"/><rect x="21" y="17" width="6" height="7" rx="1" fill="#FF0000"/>`,
+  ar: `<rect width="60" height="13.4" fill="#74ACDF"/><rect y="13.3" width="60" height="13.4" fill="#fff"/><rect y="26.6" width="60" height="13.4" fill="#74ACDF"/><circle cx="30" cy="20" r="4" fill="#F6B40E"/>`,
+  kr: `<rect width="60" height="40" fill="#fff"/><circle cx="30" cy="20" r="8" fill="#CD2E3A"/><path d="M22 20a8 8 0 0 0 16 0a4 4 0 0 0-8 0a4 4 0 0 1-8 0z" fill="#0047A0"/>`,
+  in: `<rect width="60" height="13.4" fill="#FF9933"/><rect y="13.3" width="60" height="13.4" fill="#fff"/><rect y="26.6" width="60" height="13.4" fill="#138808"/><circle cx="30" cy="20" r="4.5" fill="none" stroke="#000080" stroke-width="1.2"/>`,
+  ru: `<rect width="60" height="13.4" fill="#fff"/><rect y="13.3" width="60" height="13.4" fill="#0039A6"/><rect y="26.6" width="60" height="13.4" fill="#D52B1E"/>`,
+  gr: `<rect width="60" height="40" fill="#0D5EAF"/>${[1,3,5,7].map(i=>`<rect y="${(i*40/9).toFixed(2)}" width="60" height="${(40/9).toFixed(2)}" fill="#fff"/>`).join("")}<rect width="22" height="22" fill="#0D5EAF"/><path d="M11 0v22M0 11h22" stroke="#fff" stroke-width="4"/>`,
+  ve: `<rect width="60" height="13.4" fill="#FFCC00"/><rect y="13.3" width="60" height="13.4" fill="#00247D"/><rect y="26.6" width="60" height="13.4" fill="#CF142B"/>${[18,24,30,36,42].map(x=>star(x, x===30?15.5:17, 1.6)).join("")}`,
+  ec: `<rect width="60" height="20" fill="#FFDD00"/><rect y="20" width="60" height="10" fill="#034EA2"/><rect y="30" width="60" height="10" fill="#ED1C24"/><circle cx="30" cy="20" r="5" fill="#7d6b3c"/>`,
+  cv: `<rect width="60" height="40" fill="#003893"/><rect y="24" width="60" height="3" fill="#fff"/><rect y="27" width="60" height="6" fill="#CF2027"/><rect y="33" width="60" height="3" fill="#fff"/>${[0,36,72,108,144,180,216,252,288,324].map(a=>{const r=Math.PI*a/180;return star(22+9*Math.sin(r),26-9*Math.cos(r),1.6,5).replace('#fff','#F7D116')}).join("")}`,
+  cl: `<rect width="60" height="20" fill="#fff"/><rect y="20" width="60" height="20" fill="#D52B1E"/><rect width="20" height="20" fill="#0039A6"/>${star(10,10,5)}`,
+};
+function flagSvg(code, cls = "") {
+  const body = FLAGS[code] || `<rect width="60" height="40" fill="#cbd5e1"/><text x="30" y="25" font-size="12" text-anchor="middle" fill="#334155">?</text>`;
+  return `<svg class="flag ${cls}" viewBox="0 0 60 40" aria-hidden="true">${body}<rect width="60" height="40" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="1"/></svg>`;
+}
+
+
+/* ---------- Scratch-style inline block ---------- */
+function blk(cat, text) { return `<span class="blk-inline cat-${cat}">${text}</span>`; }
+
+const CONFIG = {
+  storageKey: "camiloScience2Progress",
+  ui: {
+    stepsTitle: "What you need to know", exampleTitle: "Example",
+    quizIntro: "{n} short questions. After each answer you will see the explanation.",
+    questionCount: "Question {i} of {n}", score: "{s} correct",
+    correct: "Correct!", wrong: "Let's check the clue", nextQuestion: "Next question", seeResult: "See result",
+    progress: "{m} of {n} topics mastered", done: "Completed", pending: "Pending",
+    resetConfirm: "Erase all results? Click again",
+    results: [["Time to review", "Read the key idea again and try once more."], ["Getting there", "You already know part of the topic. A short review will help."], ["Topic mastered!", "You understood the key ideas and applied them very well."]]
+  },
+
+  /* ---------- Visuals that exist only in this site ---------- */
+  extraVisuals: {
+    cycle(v) {
+      const states = [["solid", "SOLID", "🧊"], ["liquid", "LIQUID", "💧"], ["gas", "GAS", "☁️"]];
+      const fwd = ["melting", "evaporation"], back = ["freezing", "condensation"];
+      let h = `<div class="cycle">`;
+      states.forEach(([k, t, icon], n) => {
+        h += `<div class="cycle-state ${k}"><span>${icon}</span><strong>${t}</strong></div>`;
+        if (n < 2) h += `<div class="cycle-arrows"><span class="warm"><b>${fwd[n]}</b><i>→</i></span><span class="cool"><i>←</i><b>${back[n]}</b></span></div>`;
+      });
+      return h + `</div><div class="cycle-legend"><span class="warm">→ the temperature rises 🔥</span><span class="cool">← the temperature drops ❄️</span></div>`;
+    },
+    decision(v) {
+      return `<div class="decision">${v.steps.map((s, i) => `
+        <div class="d-step"><div class="d-q"><span>${i + 1}</span>${esc(s.q)}</div>
+        <div class="d-answers">${s.answers.map(a => a.next
+          ? `<div class="d-next"><b>${esc(a.ans)}</b> ↓ go to the next question</div>`
+          : `<div class="d-leaf ${a.state}"><b>${esc(a.ans)}</b> → <strong>${esc(a.item)}</strong><em>${esc(a.state)}</em></div>`).join("")}</div></div>`).join("")}</div>`;
+    },
+    skeleton(v) {
+      const labels = v.labels !== false, hi = v.highlight || "";
+      const cls = (b, extra) => `bone ${extra || ""} b-${b}${hi === b ? " hi" : ""}`;
+      const seg = (b, x1, y1, x2, y2, w) => `<g class="${cls(b)}"><line class="out" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke-width="${w + 4}"/><line class="in" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke-width="${w}"/></g>`;
+      const shape = (b, inner) => `<g class="${cls(b, "shape")}">${inner}</g>`;
+      const ribs = [112, 128, 144, 160, 176].flatMap(y => [`M176,${y} C150,${y - 6} 122,${y + 6} 120,${y + 22}`, `M184,${y} C210,${y - 6} 238,${y + 6} 240,${y + 22}`]);
+      const tag = (b, name, color, tx, ty, anchor, x1, y1, x2, y2) => labels ? `<g class="tag t-${b}" tabindex="0"><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/><circle cx="${x2}" cy="${y2}" r="3.5" fill="${color}"/><text x="${tx}" y="${ty}" text-anchor="${anchor}" fill="${color}">${name}</text></g>` : "";
+      return `<svg class="skel" viewBox="0 0 360 600" role="img" aria-label="Diagram of the human skeleton${hi ? " with the " + hi + " highlighted" : ""}">
+        ${shape("skull", `<ellipse cx="180" cy="48" rx="30" ry="34"/><rect x="163" y="66" width="34" height="22" rx="9"/>`)}
+        <circle cx="169" cy="44" r="6" fill="#5b4a2a"/><circle cx="191" cy="44" r="6" fill="#5b4a2a"/>
+        ${shape("vertebra", [92, 184, 200, 216, 232, 248].map(y => `<rect x="172" y="${y}" width="16" height="12" rx="4"/>`).join(""))}
+        <g class="${cls("rib")}">${ribs.map(d => `<path class="out" d="${d}" stroke-width="9"/>`).join("")}${ribs.map(d => `<path class="in" d="${d}" stroke-width="5"/>`).join("")}</g>
+        ${shape("sternum", `<rect x="175" y="106" width="10" height="70" rx="5"/>`)}
+        ${seg("humerus", 124, 106, 102, 198, 9)}${seg("humerus", 236, 106, 258, 198, 9)}
+        ${seg("radius", 96, 204, 80, 288, 7)}${seg("radius", 264, 204, 280, 288, 7)}
+        ${seg("ulna", 108, 204, 98, 292, 6)}${seg("ulna", 252, 204, 262, 292, 6)}
+        ${shape("pelvis", `<path d="M148,262 C122,268 118,302 138,318 C152,330 168,322 174,306 L180,298 L186,306 C192,322 208,330 222,318 C242,302 238,268 212,262 C202,270 158,270 148,262 Z"/>`)}
+        ${seg("femur", 162, 318, 150, 438, 11)}${seg("femur", 198, 318, 210, 438, 11)}
+        ${seg("tibia", 154, 456, 152, 562, 9)}${seg("tibia", 206, 456, 208, 562, 9)}
+        ${seg("fibula", 140, 458, 137, 560, 5)}${seg("fibula", 220, 458, 223, 560, 5)}
+        <g class="shape bone"><circle cx="124" cy="106" r="7"/><circle cx="236" cy="106" r="7"/><circle cx="102" cy="198" r="6"/><circle cx="258" cy="198" r="6"/><ellipse cx="86" cy="304" rx="11" ry="14"/><ellipse cx="274" cy="304" rx="11" ry="14"/><ellipse cx="142" cy="574" rx="24" ry="9"/><ellipse cx="218" cy="574" rx="24" ry="9"/></g>
+        ${shape("patella", `<circle cx="149" cy="447" r="8"/><circle cx="211" cy="447" r="8"/>`)}
+        ${tag("skull", "SKULL", "#c2185b", 6, 44, "start", 52, 40, 150, 46)}
+        ${tag("sternum", "STERNUM", "#2a8fbd", 6, 124, "start", 72, 120, 176, 136)}
+        ${tag("humerus", "HUMERUS", "#c99a06", 6, 170, "start", 72, 166, 110, 166)}
+        ${tag("pelvis", "PELVIS", "#5a9e1f", 6, 300, "start", 62, 296, 136, 304)}
+        ${tag("patella", "PATELLA", "#d2691e", 6, 451, "start", 72, 447, 141, 447)}
+        ${tag("fibula", "FIBULA", "#c0392b", 6, 524, "start", 62, 520, 138, 520)}
+        ${tag("vertebra", "VERTEBRA", "#5a9e1f", 354, 98, "end", 282, 94, 190, 98)}
+        ${tag("rib", "RIB", "#d2691e", 354, 152, "end", 322, 148, 222, 147)}
+        ${tag("radius", "RADIUS", "#c2185b", 354, 246, "end", 296, 242, 272, 246)}
+        ${tag("ulna", "ULNA", "#c0392b", 354, 276, "end", 314, 272, 260, 274)}
+        ${tag("femur", "FEMUR", "#c99a06", 354, 394, "end", 304, 390, 205, 390)}
+        ${tag("tibia", "TIBIA", "#2a8fbd", 354, 544, "end", 304, 540, 208, 540)}
+      </svg>`;
+    },
+    arm(v) {
+      const panel = mode => {
+        const bend = mode === "bend", lbl = v.labels !== false;
+        return `<div class="arm-panel"><svg viewBox="0 0 300 160" role="img" aria-label="${bend ? "Bent arm: the biceps contracts and the triceps relaxes" : "Straight arm: the triceps contracts and the biceps relaxes"}">
+          <line class="ab" x1="40" y1="110" x2="170" y2="110"/>
+          ${bend ? `<line class="ab" x1="170" y1="110" x2="205" y2="24"/><circle class="ah" cx="208" cy="16" r="9"/>` : `<line class="ab" x1="170" y1="110" x2="272" y2="110"/><circle class="ah" cx="282" cy="110" r="9"/>`}
+          <circle class="aj" cx="40" cy="110" r="10"/><circle class="aj" cx="170" cy="110" r="8"/>
+          <line class="at" x1="50" y1="98" x2="38" y2="106"/><line class="at" x1="166" y1="98" x2="176" y2="106"/><line class="at" x1="50" y1="126" x2="38" y2="116"/><line class="at" x1="166" y1="126" x2="176" y2="118"/>
+          ${bend ? `<ellipse class="am on" cx="108" cy="84" rx="44" ry="24"/><ellipse class="am off" cx="108" cy="133" rx="58" ry="11"/>` : `<ellipse class="am off" cx="108" cy="95" rx="58" ry="12"/><ellipse class="am on" cx="108" cy="136" rx="44" ry="20"/>`}
+          ${lbl ? `<text class="al ${bend ? "on" : "off"}" x="108" y="${bend ? 89 : 99}" text-anchor="middle">BICEPS</text><text class="al ${bend ? "off" : "on"}" x="108" y="${bend ? 137 : 141}" text-anchor="middle">TRICEPS</text><text class="as" x="183" y="130">tendon</text>` : ""}
+        </svg>${v.facts === false ? "" : `<div class="arm-facts"><span class="${bend ? "on" : "off"}"><b>Biceps</b> ${bend ? "contracts → shorter" : "relaxes → longer"}</span><span class="${bend ? "off" : "on"}"><b>Triceps</b> ${bend ? "relaxes → longer" : "contracts → shorter"}</span></div>`}</div>`;
+      };
+      if (v.only) return `<div class="arm">${panel(v.only)}</div>`;
+      return `<div class="arm arm-toggle"><input type="radio" name="armMode" id="armBend" checked><label for="armBend">Bend your arm</label><input type="radio" name="armMode" id="armStraight"><label for="armStraight">Straighten your arm</label><div class="arm-views">${panel("bend")}${panel("straight")}</div></div>`;
+    }
+  },
+
+  topics: [
+  /* ---------- 1. The atom ---------- */
+  {
+    title: "The atom: protons, neutrons and electrons",
+    week: "Part 1 · The atom",
+    summary: "Everything is made of atoms. Each atom has a nucleus in the center and electrons moving around it.",
+    definition: "An <b>atom</b> has a <b>nucleus</b> in the center, made of <b>protons</b> and <b>neutrons</b>. The <b>electrons</b> move around the nucleus on paths called <b>electron orbits</b>. Protons have a <b>positive</b> electric charge, electrons have a <b>negative</b> electric charge, and neutrons have <b>no</b> electric charge.",
+    visuals: [
+      { type: "atom", title: "Diagram of an atom", intro: "Red = protons (+), blue = neutrons (0), green = electrons (−). The rings are the electron orbits." },
+      { type: "table", title: "The three particles", head: ["Particle", "Electric charge", "Where is it?"], rows: [
+        ["Proton", "<mark>Positive (+)</mark>", "In the nucleus (center)"],
+        ["Neutron", "<mark>No charge (0)</mark>", "In the nucleus (center)"],
+        ["Electron", "<mark>Negative (−)</mark>", "On the electron orbits, around the nucleus"]
+      ] }
+    ],
+    steps: [
+      "Find the <b>nucleus</b>: it is the small ball in the <b>center</b> of the atom. It holds the protons and the neutrons.",
+      "Find the <b>electron orbits</b>: the rings around the nucleus. The electrons travel on them.",
+      "Learn the three charges: <b>proton → positive (+)</b>, <b>electron → negative (−)</b>, <b>neutron → no charge (0)</b>."
+    ],
+    example: "In the picture from class, the labels point to five things: <b>Electron</b>, <b>Proton</b>, <b>Neutron</b>, <b>Nucleus</b> and <b>Electron orbits</b>. The proton and neutron arrows point to the center; the electron arrows point to the small balls on the rings.",
+    tip: "<b>P</b>roton = <b>P</b>ositive. <b>N</b>eutron = <b>N</b>o charge (neutral). <b>E</b>lectron = n<b>E</b>gative and on the <b>E</b>dge (the orbits). (Protón, neutrón, electrón.)",
+    questions: [
+      { prompt: "Which particle has a positive electric charge?", options: ["Proton", "Electron", "Neutron", "Nucleus"], answer: 0, feedback: "Protons have a positive electric charge. Remember: Proton = Positive." },
+      { prompt: "Which particle has a negative electric charge?", options: ["Neutron", "Electron", "Proton", "Orbit"], answer: 1, feedback: "Electrons have a negative electric charge. They move around the nucleus." },
+      { prompt: "Which particle has no electric charge?", options: ["Proton", "Electron", "Neutron", "All of them have a charge"], answer: 2, feedback: "Neutrons have no electric charge. Neutron = Neutral." },
+      { prompt: "What is in the center of the atom?", options: ["The electron orbits", "A single electron", "Nothing, it is empty", "The nucleus, made of protons and neutrons"], answer: 3, feedback: "The nucleus is in the center of the atom. The proton and the neutron are inside it." },
+      { prompt: "Where do the electrons move?", options: ["On the electron orbits, around the nucleus", "Inside the nucleus", "Inside the protons", "They do not move"], answer: 0, feedback: "Electrons travel on the electron orbits, the rings around the nucleus." },
+      { visual: { type: "atom", labels: false }, prompt: "In the diagram, what are the small green balls on the rings?", options: ["Protons", "Electrons", "Neutrons", "Nuclei"], answer: 1, feedback: "The particles on the orbits around the nucleus are the electrons. Protons and neutrons stay in the center." },
+      { prompt: "Which list is correct?", options: ["Proton −, Neutron +, Electron 0", "Proton 0, Neutron −, Electron +", "Proton +, Neutron 0, Electron −", "Proton +, Neutron −, Electron 0"], answer: 2, feedback: "Proton positive (+), neutron no charge (0), electron negative (−)." }
+    ]
+  },
+
+  /* ---------- 2. Matter and the three states ---------- */
+  {
+    title: "Matter: solids, liquids and gases",
+    week: "Part 2 · States of matter",
+    summary: "Anything that has mass and volume is matter. Matter can be a solid, a liquid or a gas.",
+    definition: "<b>Matter</b> is anything that has <b>mass</b> and <b>volume</b>. A basketball has mass and volume, so it is matter. Matter comes in three <b>states</b>: <b>solid</b>, <b>liquid</b> and <b>gas</b>. Water can be in all three: <b>ice</b> (solid), <b>liquid water</b> and <b>steam</b> (gas).",
+    visuals: [
+      { type: "cards", cols: 3, title: "Is a basketball matter?", items: [
+        { icon: "⚖️", title: "Does it have mass?", text: "<b>Yes.</b> You can weigh it.", color: "#2a9d8f" },
+        { icon: "📦", title: "Does it have volume?", text: "<b>Yes.</b> It takes up space.", color: "#2a9d8f" },
+        { icon: "🏀", title: "Is it matter?", text: "<b>Yes!</b> It has mass and volume, so it is matter.", color: "#e4572e" }
+      ] },
+      { type: "states", title: "Water in its three states", intro: "Ice is a solid, water is a liquid, steam is a gas. Watch how the particles move in each one." },
+      { type: "table", title: "What each state is like", head: ["State", "Shape", "Volume", "What else?"], rows: [
+        ["Solid", "<mark>Fixed shape</mark>", "<mark>Fixed volume</mark>", "Can be hard, elastic, transparent and so on"],
+        ["Liquid", "Takes the shape of its container", "<mark>Fixed volume</mark>", "You can pour it. It can be viscous or volatile"],
+        ["Gas", "Spreads to fill its container", "Spreads to fill its container", "The particles move around freely and are far apart"]
+      ] }
+    ],
+    steps: [
+      "<b>Solids</b> have a fixed shape and a fixed volume. They can be hard, elastic, transparent and so on.",
+      "<b>Liquids</b> have a fixed volume, but they take the shape of their container. You can pour them. They can be viscous (thick) or volatile (they turn into gas easily).",
+      "<b>Gases</b> spread to fill their container. The particles move around freely and are far apart.",
+      "To decide if something is matter, ask two questions: does it have <b>mass</b>? Does it have <b>volume</b>? Two yeses = matter."
+    ],
+    example: "Water: an <b>ice cube</b> keeps its shape (solid). <b>Water in a glass</b> takes the shape of the glass, and you can pour it (liquid). <b>Steam</b> from boiling water spreads out into the air (gas).",
+    tip: "<b>Solid</b> = keeps its shape. <b>Liquid</b> = pours and takes the shape of the glass. <b>Gas</b> = spreads everywhere. (Sólido, líquido, gas.)",
+    questions: [
+      { prompt: "Which two things does all matter have?", options: ["Mass and volume", "Color and shape", "Heat and light", "Water and air"], answer: 0, feedback: "Matter is anything that has mass and volume." },
+      { context: "A basketball has mass, and it has volume.", prompt: "Is a basketball matter?", options: ["No, because it is round", "Yes, because it has mass and volume", "No, because it is full of air", "Only when it bounces"], answer: 1, feedback: "Yes. Anything with mass and volume is matter, and a basketball has both." },
+      { context: "Complete the sentence with gases, liquids or solids.", prompt: "«______ spread to fill their container. The particles move around freely and are far apart.»", options: ["Solids", "Liquids", "Gases", "Metals"], answer: 2, feedback: "Gases spread to fill their container. Their particles move freely and are far apart." },
+      { context: "Complete the sentence with gases, liquids or solids.", prompt: "«______ have a fixed shape and volume. They can be hard, elastic, transparent and so on.»", options: ["Gases", "Solids", "Liquids", "Vapors"], answer: 1, feedback: "Solids have a fixed shape and a fixed volume." },
+      { context: "Complete the sentence with gases, liquids or solids.", prompt: "«______ have a fixed volume, and they take the shape of their container. You can pour them.»", options: ["Liquids", "Solids", "Gases", "Rocks"], answer: 0, feedback: "Liquids keep their volume but take the shape of the container, and you can pour them." },
+      { prompt: "Which state of water is a gas?", options: ["Ice", "Steam", "Water in a glass", "An ice cube"], answer: 1, feedback: "Steam is water as a gas. Ice is the solid and the water in a glass is the liquid." },
+      { visual: { type: "states", only: "gas", text: false, labels: false }, prompt: "Which state of matter does this picture show?", options: ["Solid", "Liquid", "Gas", "Matter with no state"], answer: 2, feedback: "The particles are far apart and move in every direction: that is a gas." },
+      { visual: { type: "states", only: "solid", text: false, labels: false }, prompt: "Which state of matter does this picture show?", options: ["Liquid", "Gas", "Steam", "Solid"], answer: 3, feedback: "The particles are tightly packed in neat rows: that is a solid." },
+      { visual: { type: "states", only: "liquid", text: false, labels: false }, prompt: "Which state of matter does this picture show?", options: ["Liquid", "Solid", "Gas", "Ice"], answer: 0, feedback: "The particles are close together but not in neat rows, and they slide around: that is a liquid." }
+    ]
+  },
+
+  /* ---------- 3. How particles behave ---------- */
+  {
+    title: "Particles: do they touch, move or squash?",
+    week: "Part 2 · States of matter",
+    summary: "Three questions tell a solid from a liquid from a gas: do the particles touch, can they move around, and can you squash them?",
+    definition: "In a <b>solid</b> the particles touch and stay in place. In a <b>liquid</b> the particles touch but can move around. In a <b>gas</b> the particles are far apart, move around freely and can be <b>squashed</b> together because there is space between them.",
+    visuals: [
+      { type: "table", title: "The particle table", head: ["Question", "Solid", "Liquid", "Gas"], rows: [
+        ["Do the particles touch each other?", "<mark>Yes</mark>", "<mark>Yes</mark>", "No"],
+        ["Can the particles move around?", "No", "<mark>Yes</mark>", "<mark>Yes</mark>"],
+        ["Can you squash the particles together?", "No", "No", "<mark>Yes</mark>"]
+      ] },
+      { type: "decision", title: "Classify a material", intro: "Follow the questions to classify oxygen, stone, sugar and water, like the chart on your worksheet.", steps: [
+        { q: "Does it spread to fill the container?", answers: [{ ans: "Yes", item: "oxygen", state: "gas" }, { ans: "No", next: true }] },
+        { q: "Can you pour it?", answers: [{ ans: "No", item: "stone", state: "solid" }, { ans: "Yes", next: true }] },
+        { q: "Can the particles move around?", answers: [{ ans: "Yes", item: "water", state: "liquid" }, { ans: "No", item: "sugar", state: "solid" }] }
+      ] }
+    ],
+    steps: [
+      "<b>Touch?</b> Solid yes, liquid yes, gas no (gas particles are far apart).",
+      "<b>Move around?</b> Solid no, liquid yes, gas yes.",
+      "<b>Squash together?</b> Solid no, liquid no, gas yes. Only a gas has space between its particles.",
+      "Sugar is a solid even though you can pour it: each grain is a tiny solid, and its particles do not move around."
+    ],
+    example: "<b>Oxygen</b> spreads to fill its container → gas. <b>Stone</b> cannot be poured → solid. <b>Water</b> can be poured and its particles move around → liquid. <b>Sugar</b> can be poured, but its particles do not move around → solid.",
+    tip: "Only a <b>gas</b> says yes to «squash». Only a <b>solid</b> says no to «move». The <b>liquid</b> is the one in the middle: touch yes, move yes, squash no.",
+    questions: [
+      { prompt: "In which state do the particles NOT touch each other?", options: ["Gas", "Solid", "Liquid", "Solid and liquid"], answer: 0, feedback: "In a gas the particles are far apart, so they do not touch. In solids and liquids they touch." },
+      { prompt: "In which state can the particles NOT move around?", options: ["Liquid", "Solid", "Gas", "Gas and liquid"], answer: 1, feedback: "In a solid the particles stay in place. In liquids and gases they can move around." },
+      { prompt: "In which state can you squash the particles together?", options: ["Solid", "Liquid", "Gas", "All of them"], answer: 2, feedback: "Only in a gas. Gas particles are far apart, so there is space to squash them together." },
+      { prompt: "Oxygen spreads to fill its container. What is it?", options: ["A solid", "A liquid", "A powder", "A gas"], answer: 3, feedback: "Something that spreads to fill its container is a gas. Oxygen is a gas." },
+      { prompt: "You cannot pour a stone. What is it?", options: ["A solid", "A liquid", "A gas", "Matter with no state"], answer: 0, feedback: "A stone does not spread and you cannot pour it: it is a solid." },
+      { prompt: "You can pour water, and its particles move around. What is it?", options: ["A gas", "A liquid", "A solid", "A powder"], answer: 1, feedback: "You can pour it and the particles move around: water is a liquid." },
+      { prompt: "You can pour sugar, but its particles do not move around. What is it?", options: ["A gas", "A liquid", "A solid", "A vapor"], answer: 2, feedback: "Sugar can be poured, but its particles do not move around, so it is a solid." },
+      { prompt: "In a liquid, do the particles touch each other?", options: ["Yes, and they can move around", "No, they are far apart", "Yes, and they cannot move", "No, and they cannot move"], answer: 0, feedback: "Liquid particles touch each other and can move around. That is why you can pour a liquid." }
+    ]
+  },
+
+  /* ---------- 4. Changes of state ---------- */
+  {
+    title: "Changes of state",
+    week: "Part 3 · Changes of matter",
+    summary: "When the temperature rises or drops, matter changes from one state to another.",
+    definition: "A <b>change of state</b> happens when the temperature changes. <b>Melting</b>: solid → liquid. <b>Freezing</b>: liquid → solid. <b>Evaporation</b>: liquid → gas. <b>Condensation</b>: gas → liquid.",
+    visuals: [
+      { type: "cycle", title: "The four changes of state", intro: "Going right, the temperature rises. Going left, the temperature drops." },
+      { type: "cards", cols: 4, title: "Changes of state you can see", intro: "The four photos on your worksheet.", items: [
+        { icon: "🪟", title: "Condensation", text: "Water drops form on a cold window: <b>gas → liquid</b>.", color: "#1d4ed8" },
+        { icon: "🌫️", title: "Evaporation", text: "Mist rises from a lake: <b>liquid → gas</b>.", color: "#c2410c" },
+        { icon: "💧", title: "Melting", text: "Icicles drip: <b>solid → liquid</b>.", color: "#c2410c" },
+        { icon: "❄️", title: "Freezing", text: "A river turns into ice: <b>liquid → solid</b>.", color: "#1d4ed8" }
+      ] }
+    ],
+    steps: [
+      "<b>Freezing</b> happens when the temperature of a liquid <b>drops</b>. The particles stop moving around and become fixed in place.",
+      "<b>Melting</b> happens when the temperature of a solid <b>rises</b>. The particles start to move around freely.",
+      "<b>Evaporation</b>: a liquid turns into a gas (liquid → gas).",
+      "<b>Condensation</b>: a gas turns into a liquid (gas → liquid)."
+    ],
+    example: "Your worksheet photos: water drops on a window = <b>condensation</b>; mist over a lake = <b>evaporation</b>; icicles dripping = <b>melting</b>; a frozen river = <b>freezing</b>.",
+    tip: "Temperature <b>up</b> 🔥: melting, then evaporation. Temperature <b>down</b> ❄️: condensation, then freezing. (Fusión, evaporación, condensación, solidificación.)",
+    questions: [
+      { prompt: "Freezing is the change from…", options: ["liquid to solid", "solid to liquid", "liquid to gas", "gas to liquid"], answer: 0, feedback: "Freezing: liquid → solid. The temperature of the liquid drops." },
+      { prompt: "Melting is the change from…", options: ["gas to liquid", "solid to liquid", "liquid to gas", "liquid to solid"], answer: 1, feedback: "Melting: solid → liquid. The temperature of the solid rises." },
+      { prompt: "Evaporation is the change from…", options: ["solid to liquid", "gas to liquid", "liquid to gas", "liquid to solid"], answer: 2, feedback: "Evaporation: liquid → gas." },
+      { prompt: "Condensation is the change from…", options: ["liquid to gas", "solid to liquid", "liquid to solid", "gas to liquid"], answer: 3, feedback: "Condensation: gas → liquid." },
+      { prompt: "«______ happens when the temperature of a liquid drops. The particles stop moving around and become fixed in place.»", options: ["Freezing", "Melting", "Evaporation", "Condensation"], answer: 0, feedback: "Freezing. The liquid gets colder, and its particles become fixed in place: it is now a solid." },
+      { prompt: "«______ happens when the temperature of a solid rises. The particles start to move around freely.»", options: ["Condensation", "Melting", "Freezing", "Evaporation"], answer: 1, feedback: "Melting. The solid gets warmer, and its particles start to move around: it is now a liquid." },
+      { prompt: "Water drops appear on a cold window. Which change of state is it?", options: ["Melting", "Freezing", "Condensation", "Evaporation"], answer: 2, feedback: "The gas in the air turns into liquid drops on the cold glass: condensation." },
+      { prompt: "Icicles are dripping in the sun. Which change of state is it?", options: ["Condensation", "Freezing", "Evaporation", "Melting"], answer: 3, feedback: "The solid ice turns into liquid water: melting." },
+      { prompt: "Mist rises from a lake in the morning. Which change of state is it?", options: ["Evaporation", "Freezing", "Melting", "Condensation"], answer: 0, feedback: "Liquid water turns into a gas and rises: evaporation." }
+    ]
+  },
+
+  /* ---------- 5. Physical and chemical changes ---------- */
+  {
+    title: "Physical and chemical changes",
+    week: "Part 3 · Changes of matter",
+    summary: "Some changes can be undone, and some make a new substance.",
+    definition: "A <b>physical change</b> changes the shape or the state of a material, but it is still the same substance. It is <b>reversible</b>. A <b>chemical change</b> produces a <b>new substance</b>. It is <b>irreversible</b>: you cannot get the original material back.",
+    visuals: [
+      { type: "compare", title: "Physical or chemical?", cols: [
+        { title: "Physical change", color: "#2a9d8f", sub: "Reversible · same substance", items: ["A change in <b>shape</b> (folding paper)", "A <b>change of state</b> (water boils and becomes steam, candle wax melts)", "You can get the original material back"] },
+        { title: "Chemical change", color: "#e4572e", sub: "Irreversible · new substance", items: ["<b>Burning</b> (wood burns and becomes ash)", "<b>Rusting</b> (a bike rusts)", "<b>Cooking</b> (an egg cooks)", "A new substance is produced. You cannot go back"] }
+      ] },
+      { type: "cards", cols: 5, title: "Reversible or irreversible?", intro: "The five changes from your worksheet.", items: [
+        { icon: "♨️", title: "Water boils", text: "Becomes steam. <b>Reversible</b>", color: "#2a9d8f" },
+        { icon: "🔥", title: "Wood burns", text: "Becomes ash. <b>Irreversible</b>", color: "#e4572e" },
+        { icon: "🕯️", title: "Candle wax melts", text: "Solid → liquid. <b>Reversible</b>", color: "#2a9d8f" },
+        { icon: "🚲", title: "A bike rusts", text: "New substance: rust. <b>Irreversible</b>", color: "#e4572e" },
+        { icon: "🍳", title: "An egg cooks", text: "New substance. <b>Irreversible</b>", color: "#e4572e" }
+      ] }
+    ],
+    steps: [
+      "Ask: is there a <b>new substance</b>? If yes → chemical change. If no → physical change.",
+      "A change in <b>shape</b> is a physical change (folding paper).",
+      "A <b>change of state</b> is a physical change too (boiling water, melting wax). It is NOT a chemical change.",
+      "<b>Rusting</b>, <b>burning</b> and <b>cooking</b> are chemical changes: they produce a new substance and are irreversible."
+    ],
+    example: "On your worksheet: the <b>boiling pot</b> and the <b>folded paper</b> show physical changes. The <b>campfire</b> and the <b>rusty bike</b> show chemical changes.",
+    tip: "<b>Physical</b> = you can get it <b>back</b> (reversible). <b>Chemical</b> = something <b>new</b> was made, no way back (irreversible). (Cambio físico / cambio químico.)",
+    questions: [
+      { prompt: "A change in shape is…", options: ["a physical change", "a chemical change", "not a change", "a change of state"], answer: 0, feedback: "A change in shape (like folding paper) is a physical change. It is still the same material." },
+      { prompt: "A chemical change produces…", options: ["the same substance", "a new substance", "only a change of shape", "nothing"], answer: 1, feedback: "A chemical change produces a new substance, like ash from burning wood." },
+      { prompt: "Rusting is an example of…", options: ["a change of state", "a physical change", "a chemical change", "melting"], answer: 2, feedback: "Rusting is a chemical change: rust is a new substance, and the change is irreversible." },
+      { context: "True or false: «The change of state from a solid to a gas is a chemical change.»", prompt: "What is the right answer?", options: ["False: a change of state is a physical change", "True: every change of state is chemical", "True: the gas is a new substance", "False: a change of state is not a change"], answer: 0, feedback: "False. A change of state is a physical change: the material is still the same substance." },
+      { prompt: "Water boils and becomes steam. Is this reversible or irreversible?", options: ["Irreversible", "Reversible", "It is a chemical change", "It is not a change"], answer: 1, feedback: "Reversible: the steam can turn back into water. Boiling is a change of state, a physical change." },
+      { prompt: "Wood burns and becomes ash. Is this reversible or irreversible?", options: ["Reversible", "It is a physical change", "Irreversible", "It is a change of state"], answer: 2, feedback: "Irreversible: ash is a new substance, and you cannot turn it back into wood. Burning is a chemical change." },
+      { prompt: "Which photo shows a physical change?", options: ["A campfire", "A rusty bike", "An egg cooking", "A child folding paper"], answer: 3, feedback: "Folding paper changes the shape, not the substance: a physical change. The others are chemical changes." },
+      { prompt: "Candle wax melts. What kind of change is it?", options: ["Physical and reversible", "Chemical and irreversible", "Chemical and reversible", "Physical and irreversible"], answer: 0, feedback: "Melting is a change of state: physical and reversible. The wax can become solid again." },
+      { prompt: "An egg cooks. What kind of change is it?", options: ["Physical and reversible", "Chemical and irreversible", "A change of state", "Physical and irreversible"], answer: 1, feedback: "Cooking makes a new substance and you cannot get the raw egg back: chemical and irreversible." }
+    ]
+  },
+
+  /* ---------- 6. The skeleton: bones to know ---------- */
+  {
+    title: "The skeleton: the bones to know",
+    week: "Part 4 · The human body",
+    summary: "Learn the names of the main bones and where they are.",
+    definition: "The human <b>skeleton</b> has <b>206 bones</b>. Bones are strong and hard. The main ones you need to know are the <b>skull</b>, the <b>vertebrae</b>, the <b>sternum</b>, the <b>ribs</b>, the <b>humerus</b>, the <b>radius</b>, the <b>ulna</b>, the <b>pelvis</b>, the <b>femur</b>, the <b>patella</b>, the <b>tibia</b> and the <b>fibula</b>.",
+    visuals: [
+      { type: "skeleton", title: "The skeleton", intro: "Touch or hover a name to light up that bone. The colors are the same as on the poster from class." },
+      { type: "table", title: "Where is each bone?", head: ["Bone", "Where it is"], rows: [
+        ["Skull", "The head. It protects the brain"],
+        ["Vertebra", "One bone of the spine (backbone). The spine has 33 vertebrae"],
+        ["Sternum", "The center of the chest, in front"],
+        ["Rib", "The curved bones around the chest. Together they form the rib cage"],
+        ["Pelvis", "The hip"],
+        ["Humerus", "The upper arm"],
+        ["Radius", "The forearm (one of its two bones)"],
+        ["Ulna", "The forearm (the other bone)"],
+        ["Femur", "The thigh (upper leg)"],
+        ["Patella", "The knee (the kneecap)"],
+        ["Tibia", "The lower leg"],
+        ["Fibula", "The lower leg, next to the tibia"]
+      ] }
+    ],
+    steps: [
+      "<b>Head</b>: the <b>skull</b> (and the jaw).",
+      "<b>Torso</b>: the <b>spine</b> is made of <b>vertebrae</b>; the <b>ribs</b> form the rib cage; the <b>sternum</b> is in the middle of the chest; the <b>pelvis</b> is at the hip.",
+      "<b>Arms</b>: <b>humerus</b> (upper arm), then <b>radius</b> and <b>ulna</b> (forearm).",
+      "<b>Legs</b>: <b>femur</b> (thigh), <b>patella</b> (knee), then <b>tibia</b> and <b>fibula</b> (lower leg)."
+    ],
+    example: "Touch your own body: the skull is your head, the sternum is in the middle of your chest, the humerus is your upper arm, the femur is your thigh and the patella is your knee.",
+    tip: "Arm and leg match up: <b>humerus ↔ femur</b> (one big bone each), <b>radius + ulna ↔ tibia + fibula</b> (two bones each). The <b>patella</b> is the extra one at the knee. The poster in class spells tibia as «tibula», but the book says <b>tibia</b>.",
+    questions: [
+      { visual: { type: "skeleton", labels: false, highlight: "skull" }, prompt: "Which bone is highlighted in yellow?", options: ["Skull", "Sternum", "Pelvis", "Femur"], answer: 0, feedback: "The skull is the bone of the head. It protects the brain." },
+      { visual: { type: "skeleton", labels: false, highlight: "humerus" }, prompt: "Which bone is highlighted in yellow?", options: ["Femur", "Humerus", "Tibia", "Ulna"], answer: 1, feedback: "The humerus is the bone of the upper arm." },
+      { prompt: "Which two bones are in the forearm?", options: ["Tibia and fibula", "Femur and patella", "Radius and ulna", "Humerus and sternum"], answer: 2, feedback: "The forearm has two bones: the radius and the ulna. The tibia and fibula are in the lower leg." },
+      { visual: { type: "skeleton", labels: false, highlight: "femur" }, prompt: "Which bone is highlighted in yellow?", options: ["Humerus", "Radius", "Fibula", "Femur"], answer: 3, feedback: "The femur is the bone of the thigh (the upper leg)." },
+      { visual: { type: "skeleton", labels: false, highlight: "patella" }, prompt: "Which bone is highlighted in yellow?", options: ["Patella", "Pelvis", "Vertebra", "Rib"], answer: 0, feedback: "The patella is the small round bone at the knee: the kneecap." },
+      { prompt: "Which two bones are in the lower leg?", options: ["Radius and ulna", "Tibia and fibula", "Femur and pelvis", "Humerus and ulna"], answer: 1, feedback: "The lower leg has the tibia and the fibula. The radius and ulna are in the forearm." },
+      { visual: { type: "skeleton", labels: false, highlight: "sternum" }, prompt: "Which bone is highlighted in yellow?", options: ["Pelvis", "Fibula", "Ulna", "Sternum"], answer: 3, feedback: "The sternum is the flat bone in the center of the chest, where the ribs meet in front." },
+      { visual: { type: "skeleton", labels: false, highlight: "pelvis" }, prompt: "Which bone is highlighted in yellow?", options: ["Pelvis", "Skull", "Tibia", "Radius"], answer: 0, feedback: "The pelvis is the bone at the hip." },
+      { visual: { type: "skeleton", labels: false, highlight: "rib" }, prompt: "Which bones are highlighted in yellow?", options: ["The vertebrae", "The ribs", "The sternums", "The ulnas"], answer: 1, feedback: "The ribs are the curved bones around the chest. Together they form the rib cage." },
+      { visual: { type: "skeleton", labels: false, highlight: "vertebra" }, prompt: "Which bones are highlighted in yellow?", options: ["The ribs", "The patellas", "The vertebrae", "The femurs"], answer: 2, feedback: "The vertebrae are the bones of the spine, or backbone." }
+    ]
+  },
+
+  /* ---------- 7. What the skeleton does ---------- */
+  {
+    title: "What does the skeleton do?",
+    week: "Part 4 · The human body",
+    summary: "The skeleton supports the body, gives it shape, protects the organs and helps it move.",
+    definition: "The human skeleton has <b>206 bones</b>. Bones are strong and hard. The skeleton <b>supports</b> the body, <b>gives it shape</b> and <b>protects</b> the internal organs. Bones also help the body <b>move</b>: the skeleton can only bend where there are <b>joints</b>, the places where two or more bones meet.",
+    visuals: [
+      { type: "cards", cols: 3, title: "The three main parts of the skeleton", items: [
+        { icon: "🙂", title: "Head", text: "The <b>skull</b> and the <b>jaw</b>. The skull protects the brain.", color: "#c2185b" },
+        { icon: "🫁", title: "Torso", text: "The <b>spine</b> (backbone) and the <b>rib cage</b>. The ribs protect the heart and the lungs.", color: "#2a9d8f" },
+        { icon: "🦵", title: "Limbs", text: "The <b>arms</b> and the <b>legs</b>. Their bones help your limbs move.", color: "#e4572e" }
+      ] },
+      { type: "table", title: "Three kinds of bones", head: ["Kind", "Where they are", "Examples"], rows: [
+        ["Short bones", "Hands and feet", "The bones in your hands and feet"],
+        ["Long bones", "Arms and legs", "Humerus, femur"],
+        ["Flat bones", "Skull and rib cage", "Skull, ribs"]
+      ] },
+      { type: "cards", cols: 2, title: "Bones protect the soft organs inside you", items: [
+        { icon: "🧠", title: "The skull protects the brain", text: "A hard, flat bone all around the brain.", color: "#c2185b" },
+        { icon: "❤️", title: "The ribs protect the heart and the lungs", text: "The rib cage surrounds them.", color: "#e4572e" }
+      ] }
+    ],
+    steps: [
+      "The skeleton has <b>206 bones</b>. Bones are strong and hard.",
+      "Four jobs: <b>support</b> the body, <b>give it shape</b>, <b>protect</b> the internal organs, and help the body <b>move</b>.",
+      "<b>Joints</b> are where two or more bones meet. The skeleton can only bend at the joints.",
+      "Three main parts: the <b>head</b> (skull and jaw), the <b>torso</b> (spine and rib cage) and the <b>limbs</b> (arms and legs).",
+      "The <b>spine</b> is at the back of the torso. It has <b>33 bones called vertebrae</b>. It supports the torso and gives shape to the body."
+    ],
+    example: "Bend your elbow and your knee: you can only bend there because they are <b>joints</b>. Now feel your ribs: they are the cage that protects your heart and lungs.",
+    tip: "Think <b>S-S-P-M</b>: <b>S</b>upport, <b>S</b>hape, <b>P</b>rotect, <b>M</b>ove. And two numbers: <b>206</b> bones in the skeleton, <b>33</b> vertebrae in the spine. (Esqueleto, articulaciones, columna vertebral.)",
+    questions: [
+      { prompt: "How many bones does the human skeleton have?", options: ["206", "650", "33", "100"], answer: 0, feedback: "The human skeleton has 206 bones. (650 is the number of muscles, and 33 is the number of vertebrae.)" },
+      { prompt: "Which bones protect the heart?", options: ["the skull", "the ribs", "the vertebrae", "the femur"], answer: 1, feedback: "The ribs protect the heart and the lungs." },
+      { prompt: "Which bones protect the brain?", options: ["the ribs", "the vertebrae", "the skull", "the pelvis"], answer: 2, feedback: "The skull protects the brain." },
+      { prompt: "What are joints?", options: ["short bones", "long bones", "flat bones", "the places where two or more bones meet"], answer: 3, feedback: "Joints are where two or more bones meet. The skeleton can only bend where there are joints." },
+      { prompt: "What are the three main parts of the skeleton?", options: ["The head, the torso and the limbs", "The skull, the ribs and the spine", "The arms, the legs and the hands", "The brain, the heart and the lungs"], answer: 0, feedback: "The three main parts are the head, the torso and the limbs (the arms and legs)." },
+      { prompt: "How many vertebrae does the spine have?", options: ["206", "33", "12", "650"], answer: 1, feedback: "The spine has 33 bones called vertebrae." },
+      { prompt: "Where are the long bones?", options: ["In the skull", "In the hands and feet", "In the arms and legs", "In the rib cage"], answer: 2, feedback: "The long bones are in the arms and legs. Short bones are in the hands and feet, and flat bones in the skull and rib cage." },
+      { prompt: "Where are the flat bones?", options: ["In the arms", "In the legs", "In the hands and feet", "In the skull and the rib cage"], answer: 3, feedback: "Flat bones are in the skull and the rib cage." },
+      { prompt: "Which of these is NOT a job of the skeleton?", options: ["Supporting the body", "Pumping blood", "Protecting the internal organs", "Giving the body shape"], answer: 1, feedback: "The skeleton supports the body, gives it shape, protects the organs and helps it move. Pumping blood is the heart's job." }
+    ]
+  },
+
+  /* ---------- 8. The muscular system ---------- */
+  {
+    title: "The muscular system",
+    week: "Part 4 · The human body",
+    summary: "Muscles and tendons move the bones. Muscles contract and relax, and they work in pairs.",
+    definition: "The <b>muscular system</b> is made up of all the <b>muscles</b> and <b>tendons</b> in the body. Muscles <b>contract</b> (get shorter) and <b>relax</b> (get longer). <b>Tendons</b> connect muscles to bones: when a muscle contracts, the tendon pulls on the bone and moves it. Bones cannot move without muscles. There are around <b>650 muscles</b> in the human body.",
+    visuals: [
+      { type: "arm", title: "Muscles work in pairs", intro: "Choose a movement and watch which muscle contracts (red, short) and which one relaxes (pale, long)." },
+      { type: "cards", cols: 3, title: "Muscles to know", intro: "The muscles labeled on the picture from class.", items: [
+        { icon: "💪", title: "Biceps", text: "Upper arm. It contracts when you <b>bend</b> your arm.", color: "#e4572e" },
+        { icon: "🦾", title: "Triceps", text: "Back of the arm. It contracts when you <b>straighten</b> your arm.", color: "#4f6d9a" },
+        { icon: "🏋️", title: "Pectoral", text: "The muscle of the chest.", color: "#2a9d8f" },
+        { icon: "🧘", title: "Abdominals", text: "The muscles of the belly.", color: "#2a9d8f" },
+        { icon: "🦵", title: "Thigh", text: "The pair at the front and back of your thigh bends and straightens your leg.", color: "#2a9d8f" },
+        { icon: "🦶", title: "Calf", text: "The back of the lower leg.", color: "#2a9d8f" }
+      ] }
+    ],
+    steps: [
+      "Muscles <b>contract</b>: they get <b>shorter</b>. Muscles <b>relax</b>: they get <b>longer</b>.",
+      "<b>Tendons</b> attach muscles to <b>bones</b>. When the muscle contracts, the tendon pulls on the bone and moves it.",
+      "Muscles work in <b>pairs</b>: when one muscle in a pair contracts, the other relaxes.",
+      "<b>Bend</b> your arm: the <b>biceps</b> contracts and the <b>triceps</b> relaxes. <b>Straighten</b> your arm: the <b>triceps</b> contracts and the <b>biceps</b> relaxes.",
+      "The skeleton and the muscular system work together: muscles pull on the bones through tendons, and the skeleton bends at the joints."
+    ],
+    example: "Bend your arm and feel the top of your upper arm get hard and short: that is the <b>biceps</b> contracting. The muscle at the back, the <b>triceps</b>, is relaxed and long. Now straighten your arm: they swap.",
+    tip: "<b>Contract = shorter</b>, <b>relax = longer</b>. <b>Bi</b>ceps <b>b</b>ends, <b>tri</b>ceps s<b>tr</b>aightens. <b>Tendons</b> tie muscles to bones. About <b>650</b> muscles. (Músculos, tendones, contraer, relajar.)",
+    questions: [
+      { prompt: "The muscular system is made up of…", options: ["muscles and bones", "muscles and tendons", "bones and joints", "tendons and organs"], answer: 1, feedback: "The muscular system is made up of all the muscles and tendons in the body." },
+      { prompt: "When a muscle contracts, it gets…", options: ["shorter", "longer", "softer", "bigger and longer"], answer: 0, feedback: "When a muscle contracts, it gets shorter. When it relaxes, it gets longer." },
+      { prompt: "Tendons attach muscles to…", options: ["organs", "other muscles", "bones", "the skin"], answer: 2, feedback: "Tendons connect muscles to bones. When the muscle contracts, the tendon pulls on the bone." },
+      { prompt: "Muscles work in pairs. When one muscle contracts, the other…", options: ["also contracts", "disappears", "gets shorter", "relaxes"], answer: 3, feedback: "When one muscle in a pair contracts, the other relaxes." },
+      { prompt: "When you bend your arm…", options: ["the biceps contracts and the triceps relaxes", "the triceps contracts and the biceps relaxes", "both muscles contract", "both muscles relax"], answer: 0, feedback: "Bending the arm: the biceps contracts (gets shorter) and the triceps relaxes (gets longer)." },
+      { prompt: "When you straighten your arm…", options: ["the biceps contracts and the triceps relaxes", "the triceps contracts and the biceps relaxes", "both muscles relax", "the tendons contract"], answer: 1, feedback: "Straightening the arm: the triceps contracts and the biceps relaxes." },
+      { visual: { type: "arm", only: "bend", labels: false, facts: false }, prompt: "The arm is bent. The red, short muscle on top of the upper arm is the…", options: ["triceps", "tendon", "biceps", "pectoral"], answer: 2, feedback: "When you bend your arm, the biceps (on top of the upper arm) contracts: it is short and hard." },
+      { prompt: "About how many muscles are there in the human body?", options: ["206", "33", "650", "12"], answer: 2, feedback: "There are around 650 muscles in the human body. (206 is the number of bones.)" },
+      { prompt: "Can bones move without muscles?", options: ["Yes, bones move by themselves", "Yes, if they are long bones", "Only the skull can", "No, bones cannot move without muscles"], answer: 3, feedback: "Bones cannot move without muscles. Muscles pull on the bones through the tendons." },
+      { prompt: "When a muscle relaxes, it gets…", options: ["longer", "shorter", "heavier", "harder"], answer: 0, feedback: "A relaxed muscle gets longer. A contracted muscle gets shorter." }
+    ]
+  }
+  ]
+};
+
+/* ---------- Shared study engine (English · Science · Social Studies) ---------- */
+const topics = CONFIG.topics;
+const UI = CONFIG.ui;
+const els = Object.fromEntries([...document.querySelectorAll("[id]")].map(el => [el.id, el]));
+const letters = ["A", "B", "C", "D"];
+let activeTopic = 0;
+let questionIndex = 0;
+let score = 0;
+let answered = false;
+let progress = loadProgress();
+
+function loadProgress() {
+  try { return JSON.parse(localStorage.getItem(CONFIG.storageKey)) || {}; }
+  catch { return {}; }
+}
+function saveProgress() { try { localStorage.setItem(CONFIG.storageKey, JSON.stringify(progress)); } catch {} }
+function masteryTarget(topic) { return Math.ceil(topic.questions.length * 0.8); }
+function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+/* ---------- Visual renderers (used by topics and questions) ---------- */
+const VISUALS = {
+  flag(v) { return `<div class="big-flag">${flagSvg(v.code)}${v.caption ? `<span>${esc(v.caption)}</span>` : ""}</div>`; },
+  flags(v) {
+    return `<div class="flag-grid">${v.items.map(it => `
+      <div class="flag-card">${flagSvg(it.code)}<strong>${esc(it.country)}</strong>${it.nationality ? `<span>${esc(it.nationality)}</span>` : ""}${it.language ? `<em>${esc(it.language)}</em>` : ""}</div>`).join("")}</div>`;
+  },
+  table(v) {
+    return `<div class="table-wrap"><table class="study-table">${v.head ? `<thead><tr>${v.head.map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead>` : ""}
+      <tbody>${v.rows.map(r => `<tr>${r.map((c, i) => `<td class="${i === 0 ? "first" : ""}">${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+  },
+  cards(v) {
+    return `<div class="info-cards cols-${v.cols || Math.min(v.items.length, 3)}">${v.items.map(it => `
+      <article class="info-card" style="${it.color ? `--card:${it.color}` : ""}">${it.icon ? `<span class="info-icon">${it.icon}</span>` : ""}<strong>${esc(it.title)}</strong><p>${it.text}</p>${it.foot ? `<small>${it.foot}</small>` : ""}</article>`).join("")}</div>`;
+  },
+  compare(v) {
+    return `<div class="compare-grid">${v.cols.map(c => `<div class="compare-col" style="--card:${c.color || "#64748b"}"><strong>${esc(c.title)}</strong>${c.sub ? `<small>${esc(c.sub)}</small>` : ""}<ul>${c.items.map(i => `<li>${i}</li>`).join("")}</ul></div>`).join("")}</div>`;
+  },
+  atom(v) {
+    const lbl = v.labels !== false;
+    return `<div class="atom-stage"><svg viewBox="0 0 420 300" class="atom-svg" role="img" aria-label="Diagram of an atom">
+      <ellipse cx="210" cy="150" rx="170" ry="60" class="orbit"/>
+      <ellipse cx="210" cy="150" rx="170" ry="60" class="orbit" transform="rotate(60 210 150)"/>
+      <ellipse cx="210" cy="150" rx="170" ry="60" class="orbit" transform="rotate(-60 210 150)"/>
+      <circle cx="197" cy="141" r="13" fill="#e4572e"/><circle cx="222" cy="141" r="13" fill="#4f6d9a"/>
+      <circle cx="210" cy="160" r="13" fill="#e4572e"/><circle cx="198" cy="160" r="12" fill="#4f6d9a"/><circle cx="224" cy="161" r="12" fill="#4f6d9a"/><circle cx="211" cy="146" r="12" fill="#e4572e"/>
+      <circle cx="380" cy="150" r="8" fill="#2a9d8f"/><circle cx="125" cy="63" r="8" fill="#2a9d8f"/><circle cx="125" cy="237" r="8" fill="#2a9d8f"/>
+      ${lbl ? `
+      <text x="210" y="205" class="lbl" text-anchor="middle">NUCLEUS</text>
+      <text x="210" y="222" class="sub" text-anchor="middle">protons (+) and neutrons (0)</text>
+      <text x="380" y="130" class="lbl" text-anchor="middle">electron (−)</text>
+      <text x="125" y="45" class="lbl" text-anchor="middle">electron (−)</text>
+      <text x="125" y="262" class="lbl" text-anchor="middle">electron (−)</text>
+      <text x="40" y="150" class="sub" text-anchor="middle">electron</text><text x="40" y="164" class="sub" text-anchor="middle">cloud / orbit</text>` : ""}
+    </svg>
+    <div class="atom-legend"><span><i style="background:#e4572e"></i>Proton · positive (+)</span><span><i style="background:#4f6d9a"></i>Neutron · no charge (0)</span><span><i style="background:#2a9d8f"></i>Electron · negative (−)</span></div></div>`;
+  },
+  states(v) {
+    const show = v.only ? [v.only] : ["solid", "liquid", "gas"];
+    const data = {
+      solid: { title: "SOLID", icon: "🧊", cls: "solid", text: "Particles packed tightly in fixed positions. They only vibrate in place." , dots: Array.from({length: 25}, (_, i) => [12 + (i % 5) * 19, 12 + Math.floor(i / 5) * 19]) },
+      liquid: { title: "LIQUID", icon: "💧", cls: "liquid", text: "Particles close together but they slide past one another and change position.", dots: [[15,20],[40,14],[70,22],[92,15],[25,45],[55,40],[85,48],[15,72],[45,66],[75,75],[98,80],[30,92],[62,95],[90,98]] },
+      gas: { title: "GAS", icon: "☁️", cls: "gas", text: "Particles far apart with lots of energy. They move freely in every direction.", dots: [[18,18],[80,25],[50,55],[20,85],[92,70],[65,95]] }
+    };
+    return `<div class="states-grid ${v.only ? "single" : ""}">${show.map(k => { const s = data[k]; return `
+      <article class="state-card ${s.cls} ${v.highlight === k ? "hi" : ""}">
+        ${v.labels === false ? "" : `<header><span>${s.icon}</span><strong>${s.title}</strong></header>`}
+        <svg viewBox="0 0 110 110" class="particles ${s.cls}" aria-hidden="true">${s.dots.map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="7" style="--i:${i}"/>`).join("")}</svg>
+        ${v.text === false ? "" : `<p>${s.text}</p>`}
+      </article>`; }).join("")}</div>`;
+  },
+  bars(v) {
+    return `<div class="bars">${v.items.map(it => `<div class="bar-row"><span class="bar-label">${esc(it.label)}</span><div class="bar-track"><span style="width:${it.value}%;background:${it.color || "var(--accent)"}"></span></div><span class="bar-value">${esc(it.text || it.value + "%")}</span></div>`).join("")}${v.note ? `<p class="bars-note">${v.note}</p>` : ""}</div>`;
+  },
+  numberline(v) {
+    const from = v.from, to = v.to, step = v.step || 1, W = 680, pad = 34, y = 66;
+    const x = n => pad + (n - from) / (to - from) * (W - 2 * pad);
+    const fmt = n => n < 0 ? "−" + Math.abs(n) : String(n);
+    let s = `<svg class="numberline" viewBox="0 0 ${W} 112" role="img" aria-label="Number line from ${fmt(from)} to ${fmt(to)}">`;
+    s += `<line x1="6" y1="${y}" x2="${W - 6}" y2="${y}" class="nl-axis"/><polygon points="${W - 4},${y} ${W - 16},${y - 6} ${W - 16},${y + 6}" class="nl-arrow"/><polygon points="4,${y} 16,${y - 6} 16,${y + 6}" class="nl-arrow"/>`;
+    for (let n = from; n <= to; n += step) {
+      const hi = (v.highlight || []).includes(n);
+      s += `<line x1="${x(n)}" y1="${y - 8}" x2="${x(n)}" y2="${y + 8}" class="nl-tick ${n === 0 ? "zero" : ""}"/><text x="${x(n)}" y="${y + 27}" class="nl-label ${hi ? "hi" : ""} ${n < 0 ? "neg" : ""}" text-anchor="middle">${fmt(n)}</text>`;
+    }
+    (v.jumps || []).forEach(j => {
+      const x1 = x(j.from), x2 = x(j.to), mid = (x1 + x2) / 2, h = 34, c = j.color || "var(--accent)";
+      s += `<path d="M${x1} ${y - 10} Q${mid} ${y - 10 - h * 1.7} ${x2} ${y - 10}" class="nl-jump" style="stroke:${c}"/><polygon points="${x2},${y - 6} ${x2 - 6},${y - 18} ${x2 + 6},${y - 18}" style="fill:${c}"/>${j.label ? `<text x="${mid}" y="${y - 10 - h - 6}" class="nl-jump-label" style="fill:${c}" text-anchor="middle">${esc(j.label)}</text>` : ""}`;
+    });
+    (v.points || []).forEach(p => {
+      const c = p.color || "var(--accent)";
+      s += `<circle cx="${x(p.at)}" cy="${y}" r="7" style="fill:${c}"/>${p.label ? `<text x="${x(p.at)}" y="${y + 44}" class="nl-point-label" style="fill:${c}" text-anchor="middle">${esc(p.label)}</text>` : ""}`;
+    });
+    return s + `</svg>`;
+  },
+  scripts(v) {
+    const render = b => b.inner
+      ? `<div class="sb-c cat-${b.cat}"><div class="sb-top">${b.text}</div><div class="sb-inner">${b.inner.map(render).join("")}</div><div class="sb-bottom"></div></div>`
+      : `<div class="sb cat-${b.cat}${b.hat ? " hat" : ""}">${b.text}</div>`;
+    return `<div class="scripts-row">${v.scripts.map(s => `<div class="script">${s.title ? `<strong>${esc(s.title)}</strong>` : ""}<div class="script-stack">${s.stack.map(render).join("")}</div>${s.note ? `<small>${s.note}</small>` : ""}</div>`).join("")}</div>`;
+  },
+  passage(v) {
+    return `<article class="passage">${v.heading ? `<h3>${esc(v.heading)}</h3>` : ""}${v.paragraphs.map(p => `<p>${p}</p>`).join("")}</article>`;
+  },
+  orgchart(v) {
+    return `<div class="orgchart"><div class="org-top" style="--card:${v.top.color || "var(--navy)"}"><strong>${esc(v.top.title)}</strong><span>${v.top.text}</span></div>
+      <div class="org-branches">${v.branches.map(b => `<div class="org-node" style="--card:${b.color || "#64748b"}"><strong>${esc(b.title)}</strong><span>${b.text}</span></div>`).join("")}</div></div>`;
+  }
+};
+Object.assign(VISUALS, CONFIG.extraVisuals || {});
+function renderVisual(v) {
+  if (!v) return "";
+  const fn = VISUALS[v.type];
+  return fn ? fn(v) : "";
+}
+
+/* ---------- Option shuffling (correct answer never sits in the same letter) ---------- */
+const CATCH_ALL = /^(both|neither|none|all of|they are equal|cannot|no digit changes|nobody knows|nothing|ninguno|ninguna|las dos|los dos|todas|todos|nada|no se diferencian|no tiene)/i;
+let currentOrder = [];
+function shuffledOrder(question) {
+  const idx = question.options.map((_, i) => i);
+  if (question.fixed || CONFIG.shuffleOptions === false) return idx;
+  const plain = o => String(o).replace(/<[^>]+>/g, "").trim();
+  const main = idx.filter(i => !CATCH_ALL.test(plain(question.options[i])));
+  const tail = idx.filter(i => CATCH_ALL.test(plain(question.options[i])));
+  for (let i = main.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [main[i], main[j]] = [main[j], main[i]]; }
+  return main.concat(tail);
+}
+
+/* ---------- Navigation ---------- */
+function buildNavigation() {
+  els.topicNav.innerHTML = topics.map((topic, index) => `
+    <button class="topic-button" type="button" data-topic="${index}">
+      <span class="topic-index">${String(index + 1).padStart(2, "0")}</span>
+      <span>${esc(topic.title)}</span>
+      <span class="topic-status ${progress[index] >= masteryTarget(topic) ? "done" : ""}" aria-label="${progress[index] >= masteryTarget(topic) ? UI.done : UI.pending}"></span>
+    </button>`).join("");
+  els.topicSelect.innerHTML = topics.map((topic, index) => `<option value="${index}">${index + 1}. ${esc(topic.title)}</option>`).join("");
+  els.topicNav.querySelectorAll("button").forEach(button => button.addEventListener("click", () => selectTopic(Number(button.dataset.topic))));
+}
+
+function renderLessonVisual(topic) {
+  const list = topic.visuals || (topic.visual ? [topic.visual] : []);
+  if (!list.length) { els.lessonVisual.classList.add("hidden"); els.lessonVisual.innerHTML = ""; return; }
+  els.lessonVisual.classList.remove("hidden");
+  els.lessonVisual.innerHTML = list.map((v, i) => `<div class="visual-block">${v.title ? `<h2>${esc(v.title)}</h2>` : ""}${v.intro ? `<p>${v.intro}</p>` : ""}${renderVisual(v)}</div>`).join("");
+}
+
+function renderQuestionVisual(question) {
+  if (!question.visual) { els.questionVisual.classList.add("hidden"); els.questionVisual.innerHTML = ""; return; }
+  els.questionVisual.classList.remove("hidden");
+  els.questionVisual.innerHTML = `${question.visual.title ? `<p class="question-visual-title">${esc(question.visual.title)}</p>` : ""}${renderVisual(question.visual)}`;
+}
+
+function selectTopic(index) {
+  activeTopic = index;
+  const topic = topics[index];
+  els.weekLabel.textContent = topic.week;
+  els.topicTitle.textContent = topic.title;
+  els.topicSummary.textContent = topic.summary;
+  els.topicNumber.textContent = String(index + 1).padStart(2, "0");
+  els.topicDefinition.innerHTML = topic.definition;
+  els.stepsTitle.textContent = topic.stepsTitle || UI.stepsTitle;
+  els.topicSteps.innerHTML = topic.steps.map(step => `<li><span>${step}</span></li>`).join("");
+  els.exampleTitle.textContent = topic.exampleTitle || UI.exampleTitle;
+  els.topicExample.innerHTML = topic.example;
+  els.topicTip.innerHTML = topic.tip;
+  renderLessonVisual(topic);
+  els.topicSelect.value = index;
+  els.topicBest.textContent = progress[index] !== undefined ? `${progress[index]}/${topic.questions.length}` : "";
+  document.querySelectorAll(".topic-button").forEach((button, i) => button.classList.toggle("active", i === index));
+  els.quizIntroText.textContent = UI.quizIntro.replace("{n}", topic.questions.length);
+  showMode("learn");
+  resetQuiz();
+  if (history.replaceState) history.replaceState(null, "", `#t${index + 1}`);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function showMode(mode) {
+  const learn = mode === "learn";
+  els.learnPanel.classList.toggle("hidden", !learn);
+  els.practicePanel.classList.toggle("hidden", learn);
+  els.learnTab.classList.toggle("active", learn);
+  els.practiceTab.classList.toggle("active", !learn);
+  els.learnTab.setAttribute("aria-selected", String(learn));
+  els.practiceTab.setAttribute("aria-selected", String(!learn));
+}
+
+function resetQuiz() {
+  questionIndex = 0; score = 0; answered = false;
+  els.quizIntro.classList.remove("hidden");
+  els.quizArea.classList.add("hidden");
+  els.quizResult.classList.add("hidden");
+}
+
+function startQuiz() {
+  questionIndex = 0; score = 0;
+  els.quizIntro.classList.add("hidden");
+  els.quizResult.classList.add("hidden");
+  els.quizArea.classList.remove("hidden");
+  renderQuestion();
+}
+
+function renderQuestion() {
+  answered = false;
+  const topic = topics[activeTopic];
+  const question = topic.questions[questionIndex];
+  const totalQuestions = topic.questions.length;
+  els.questionCount.textContent = UI.questionCount.replace("{i}", questionIndex + 1).replace("{n}", totalQuestions);
+  els.liveScore.textContent = UI.score.replace("{s}", score);
+  els.questionBar.style.width = `${((questionIndex + 1) / totalQuestions) * 100}%`;
+  renderQuestionVisual(question);
+  els.questionContext.innerHTML = question.context || "";
+  els.questionContext.classList.toggle("hidden", !question.context);
+  els.questionPrompt.innerHTML = question.prompt;
+  els.feedback.className = "feedback hidden";
+  els.nextQuestion.classList.add("hidden");
+  currentOrder = shuffledOrder(question);
+  els.answerList.innerHTML = currentOrder.map((orig, index) => `
+    <button class="answer-button" type="button" data-answer="${index}" data-orig="${orig}">
+      <span class="answer-letter">${letters[index]}</span><span>${question.options[orig]}</span>
+    </button>`).join("");
+  els.answerList.querySelectorAll("button").forEach(button => button.addEventListener("click", () => answerQuestion(Number(button.dataset.answer))));
+}
+
+function answerQuestion(selected) {
+  if (answered) return;
+  answered = true;
+  const question = topics[activeTopic].questions[questionIndex];
+  const correct = currentOrder[selected] === question.answer;
+  if (correct) score++;
+  els.liveScore.textContent = UI.score.replace("{s}", score);
+  [...els.answerList.children].forEach((button, index) => {
+    button.disabled = true;
+    if (currentOrder[index] === question.answer) button.classList.add("correct");
+    if (index === selected && !correct) button.classList.add("wrong");
+  });
+  els.feedback.className = `feedback ${correct ? "good" : "bad"}`;
+  els.feedback.innerHTML = `<strong>${correct ? UI.correct : UI.wrong}</strong>${question.feedback}`;
+  els.nextQuestion.textContent = questionIndex === topics[activeTopic].questions.length - 1 ? UI.seeResult : UI.nextQuestion;
+  els.nextQuestion.classList.remove("hidden");
+  els.nextQuestion.focus({ preventScroll: true });
+}
+
+function advanceQuestion() {
+  if (questionIndex < topics[activeTopic].questions.length - 1) { questionIndex++; renderQuestion(); }
+  else showResult();
+}
+
+function showResult() {
+  els.quizArea.classList.add("hidden");
+  els.quizResult.classList.remove("hidden");
+  const topic = topics[activeTopic];
+  const totalQuestions = topic.questions.length;
+  els.resultScore.textContent = `${score}/${totalQuestions}`;
+  const level = score >= masteryTarget(topic) ? 2 : score >= Math.ceil(totalQuestions * 0.6) ? 1 : 0;
+  els.resultTitle.textContent = UI.results[level][0];
+  els.resultMessage.textContent = UI.results[level][1];
+  progress[activeTopic] = Math.max(progress[activeTopic] || 0, score);
+  saveProgress();
+  refreshProgress();
+}
+
+function refreshProgress() {
+  const mastered = topics.filter((topic, index) => progress[index] >= masteryTarget(topic)).length;
+  els.progressText.textContent = UI.progress.replace("{m}", mastered).replace("{n}", topics.length);
+  els.progressBar.style.width = `${(mastered / topics.length) * 100}%`;
+  buildNavigation();
+  document.querySelectorAll(".topic-button").forEach((button, i) => button.classList.toggle("active", i === activeTopic));
+  els.topicBest.textContent = progress[activeTopic] !== undefined ? `${progress[activeTopic]}/${topics[activeTopic].questions.length}` : "";
+}
+
+els.learnTab.addEventListener("click", () => showMode("learn"));
+els.practiceTab.addEventListener("click", () => showMode("practice"));
+els.startPractice.addEventListener("click", () => { showMode("practice"); window.scrollTo({ top: 0, behavior: "smooth" }); });
+els.beginQuiz.addEventListener("click", startQuiz);
+els.nextQuestion.addEventListener("click", advanceQuestion);
+els.retryQuiz.addEventListener("click", startQuiz);
+els.nextTopic.addEventListener("click", () => selectTopic((activeTopic + 1) % topics.length));
+els.topicSelect.addEventListener("change", event => selectTopic(Number(event.target.value)));
+/* Two-click reset (no confirm() dialog: it is blocked inside the artifact viewer). */
+let resetArmed = null;
+function disarmReset() { clearTimeout(resetArmed); resetArmed = null; els.resetProgress.textContent = els.resetProgress.dataset.label || els.resetProgress.textContent; els.resetProgress.classList.remove("armed"); }
+els.resetProgress.addEventListener("click", () => {
+  if (resetArmed) { disarmReset(); progress = {}; saveProgress(); refreshProgress(); resetQuiz(); return; }
+  els.resetProgress.dataset.label = els.resetProgress.textContent;
+  els.resetProgress.textContent = UI.resetConfirm;
+  els.resetProgress.classList.add("armed");
+  resetArmed = setTimeout(disarmReset, 5000);
+});
+window.addEventListener("hashchange", () => {
+  const m = location.hash.match(/^#t(\d+)(p?)$/);
+  if (!m) return;
+  const i = Math.min(Math.max(parseInt(m[1], 10) - 1, 0), topics.length - 1);
+  if (i !== activeTopic) selectTopic(i);
+  if (m[2]) { showMode("practice"); startQuiz(); }
+});
+document.querySelector(".brand").addEventListener("click", event => { event.preventDefault(); selectTopic(0); });
+
+buildNavigation();
+refreshProgress();
+const initialHash = location.hash;
+const startAt = Math.min(Math.max(parseInt((initialHash.match(/#t(\d+)/) || [])[1] || 1, 10) - 1, 0), topics.length - 1);
+selectTopic(startAt);
+if (/#t\d+p/.test(initialHash)) { showMode("practice"); startQuiz(); }
+
+  </script>
+</body>
+</html>
