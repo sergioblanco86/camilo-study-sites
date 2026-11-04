@@ -284,16 +284,6 @@ h1 { margin: 0; font-size: clamp(2.1rem, 4vw, 3.5rem); line-height: 1.04; letter
   .cycle-arrows i { display: inline-block; transform: rotate(90deg); }
 }
 
-.decision { display: grid; gap: 16px; }
-.d-q { display: flex; gap: 10px; align-items: center; font-weight: 800; color: var(--navy); }
-.d-q span { flex: 0 0 26px; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 8px; background: var(--navy); color: #fff; font-size: .8rem; }
-.d-answers { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 0 36px; }
-.d-leaf, .d-next { padding: 8px 12px; border-radius: 10px; border: 2px solid #b8c4d3; font-size: .9rem; color: #45546b; background: #fff; }
-.d-leaf.gas { border-color: #9ab0c3; background: #eef2f8; } .d-leaf.liquid { border-color: #2a7fbf; background: #eaf4fb; } .d-leaf.solid { border-color: #e4572e; background: #fdeee9; }
-.d-leaf strong { color: var(--navy); }
-.d-leaf em { font-style: normal; margin-left: 6px; text-transform: uppercase; font-size: .72rem; letter-spacing: .08em; font-weight: 800; }
-.d-next { border-style: dashed; color: var(--muted); }
-
 .skel { width: 100%; max-width: 400px; display: block; margin: 0 auto; }
 .skel .bone { --f: #f1e2b6; --s: #9a7b45; }
 .skel .out { stroke: var(--s); stroke-linecap: round; fill: none; }
@@ -387,12 +377,12 @@ h1 { margin: 0; font-size: clamp(2.1rem, 4vw, 3.5rem); line-height: 1.04; letter
 
         <section id="lessonVisual" class="lesson-visual hidden" aria-label="Visual example"></section>
 
-        <div class="lesson-grid">
-          <article class="content-card">
+        <div class="lesson-grid" id="lessonGrid">
+          <article class="content-card" id="stepsCard">
             <h2 id="stepsTitle"></h2>
             <ol class="steps-list" id="topicSteps"></ol>
           </article>
-          <article class="content-card example-card">
+          <article class="content-card example-card" id="exampleCard">
             <h2 id="exampleTitle"></h2>
             <p id="topicExample"></p>
           </article>
@@ -500,7 +490,7 @@ const CONFIG = {
   storageKey: "camiloScience2Progress",
   ui: {
     stepsTitle: "What you need to know", exampleTitle: "Example",
-    quizIntro: "{n} short questions. After each answer you will see the explanation.",
+    quizIntro: "{n} questions, taken from the exercises on your worksheet. After each answer you will see the explanation.",
     questionCount: "Question {i} of {n}", score: "{s} correct",
     correct: "Correct!", wrong: "Let's check the clue", nextQuestion: "Next question", seeResult: "See result",
     progress: "{m} of {n} topics mastered", done: "Completed", pending: "Pending",
@@ -519,13 +509,6 @@ const CONFIG = {
         if (n < 2) h += `<div class="cycle-arrows"><span class="warm"><b>${fwd[n]}</b><i>→</i></span><span class="cool"><i>←</i><b>${back[n]}</b></span></div>`;
       });
       return h + `</div><div class="cycle-legend"><span class="warm">→ the temperature rises 🔥</span><span class="cool">← the temperature drops ❄️</span></div>`;
-    },
-    decision(v) {
-      return `<div class="decision">${v.steps.map((s, i) => `
-        <div class="d-step"><div class="d-q"><span>${i + 1}</span>${esc(s.q)}</div>
-        <div class="d-answers">${s.answers.map(a => a.next
-          ? `<div class="d-next"><b>${esc(a.ans)}</b> ↓ go to the next question</div>`
-          : `<div class="d-leaf ${a.state}"><b>${esc(a.ans)}</b> → <strong>${esc(a.item)}</strong><em>${esc(a.state)}</em></div>`).join("")}</div></div>`).join("")}</div>`;
     },
     skeleton(v) {
       const labels = v.labels !== false, hi = v.highlight || "";
@@ -581,318 +564,84 @@ const CONFIG = {
   },
 
   topics: [
-  /* ---------- 1. The atom ---------- */
   {
-    title: "The atom: protons, neutrons and electrons",
-    week: "Part 1 · The atom",
-    summary: "Everything is made of atoms. Each atom has a nucleus in the center and electrons moving around it.",
-    definition: "An <b>atom</b> has a <b>nucleus</b> in the center, made of <b>protons</b> and <b>neutrons</b>. The <b>electrons</b> move around the nucleus on paths called <b>electron orbits</b>. Protons have a <b>positive</b> electric charge, electrons have a <b>negative</b> electric charge, and neutrons have <b>no</b> electric charge.",
-    visuals: [
-      { type: "atom", title: "Diagram of an atom", intro: "Red = protons (+), blue = neutrons (0), green = electrons (−). The rings are the electron orbits." },
-      { type: "table", title: "The three particles", head: ["Particle", "Electric charge", "Where is it?"], rows: [
-        ["Proton", "<mark>Positive (+)</mark>", "In the nucleus (center)"],
-        ["Neutron", "<mark>No charge (0)</mark>", "In the nucleus (center)"],
-        ["Electron", "<mark>Negative (−)</mark>", "On the electron orbits, around the nucleus"]
-      ] }
-    ],
-    steps: [
-      "Find the <b>nucleus</b>: it is the small ball in the <b>center</b> of the atom. It holds the protons and the neutrons.",
-      "Find the <b>electron orbits</b>: the rings around the nucleus. The electrons travel on them.",
-      "Learn the three charges: <b>proton → positive (+)</b>, <b>electron → negative (−)</b>, <b>neutron → no charge (0)</b>."
-    ],
-    example: "In the picture from class, the labels point to five things: <b>Electron</b>, <b>Proton</b>, <b>Neutron</b>, <b>Nucleus</b> and <b>Electron orbits</b>. The proton and neutron arrows point to the center; the electron arrows point to the small balls on the rings.",
-    tip: "<b>P</b>roton = <b>P</b>ositive. <b>N</b>eutron = <b>N</b>o charge (neutral). <b>E</b>lectron = n<b>E</b>gative and on the <b>E</b>dge (the orbits). (Protón, neutrón, electrón.)",
+    title: "The atom",
+    week: "Slide · The atom",
+    summary: "The nucleus is in the center. The electrons move around it.",
+    definition: "<b>Protons</b> have a <b>positive</b> electric charge. <b>Electrons</b> have a <b>negative</b> electric charge. <b>Neutrons</b> have <b>no</b> electric charge. Protons and neutrons are in the <b>nucleus</b>, in the center. Electrons move on the <b>electron orbits</b> around it.",
+    visual: { type: "atom", title: "The atom", intro: "Red = protons (+), blue = neutrons (0), green = electrons (−)." },
+    tip: "<b>P</b>roton = <b>P</b>ositive. <b>N</b>eutron = <b>N</b>o charge. <b>E</b>lectron = n<b>E</b>gative. (Protón, neutrón, electrón.)",
     questions: [
-      { prompt: "Which particle has a positive electric charge?", options: ["Proton", "Electron", "Neutron", "Nucleus"], answer: 0, feedback: "Protons have a positive electric charge. Remember: Proton = Positive." },
-      { prompt: "Which particle has a negative electric charge?", options: ["Neutron", "Electron", "Proton", "Orbit"], answer: 1, feedback: "Electrons have a negative electric charge. They move around the nucleus." },
-      { prompt: "Which particle has no electric charge?", options: ["Proton", "Electron", "Neutron", "All of them have a charge"], answer: 2, feedback: "Neutrons have no electric charge. Neutron = Neutral." },
-      { prompt: "What is in the center of the atom?", options: ["The electron orbits", "A single electron", "Nothing, it is empty", "The nucleus, made of protons and neutrons"], answer: 3, feedback: "The nucleus is in the center of the atom. The proton and the neutron are inside it." },
-      { prompt: "Where do the electrons move?", options: ["On the electron orbits, around the nucleus", "Inside the nucleus", "Inside the protons", "They do not move"], answer: 0, feedback: "Electrons travel on the electron orbits, the rings around the nucleus." },
-      { visual: { type: "atom", labels: false }, prompt: "In the diagram, what are the small green balls on the rings?", options: ["Protons", "Electrons", "Neutrons", "Nuclei"], answer: 1, feedback: "The particles on the orbits around the nucleus are the electrons. Protons and neutrons stay in the center." },
-      { prompt: "Which list is correct?", options: ["Proton −, Neutron +, Electron 0", "Proton 0, Neutron −, Electron +", "Proton +, Neutron 0, Electron −", "Proton +, Neutron −, Electron 0"], answer: 2, feedback: "Proton positive (+), neutron no charge (0), electron negative (−)." }
+      { prompt: "Which particle has a positive electric charge?", options: ["Proton", "Electron", "Neutron", "Orbit"], answer: 0, feedback: "Protons have a positive electric charge." },
+      { prompt: "Which particle has a negative electric charge?", options: ["Neutron", "Electron", "Proton", "Nucleus"], answer: 1, feedback: "Electrons have a negative electric charge." },
+      { prompt: "Which particle has no electric charge?", options: ["Proton", "Electron", "Neutron", "All of them"], answer: 2, feedback: "Neutrons have no electric charge." },
+      { prompt: "What is in the center of the atom?", options: ["An electron", "An orbit", "Nothing", "The nucleus"], answer: 3, feedback: "The nucleus is in the center, with the protons and neutrons inside." },
+      { visual: { type: "atom", labels: false }, prompt: "What are the green balls on the rings?", options: ["Electrons", "Protons", "Neutrons", "Nuclei"], answer: 0, feedback: "The electrons move on the electron orbits around the nucleus." }
     ]
   },
-
-  /* ---------- 2. Matter and the three states ---------- */
   {
-    title: "Matter: solids, liquids and gases",
-    week: "Part 2 · States of matter",
-    summary: "Anything that has mass and volume is matter. Matter can be a solid, a liquid or a gas.",
-    definition: "<b>Matter</b> is anything that has <b>mass</b> and <b>volume</b>. A basketball has mass and volume, so it is matter. Matter comes in three <b>states</b>: <b>solid</b>, <b>liquid</b> and <b>gas</b>. Water can be in all three: <b>ice</b> (solid), <b>liquid water</b> and <b>steam</b> (gas).",
-    visuals: [
-      { type: "cards", cols: 3, title: "Is a basketball matter?", items: [
-        { icon: "⚖️", title: "Does it have mass?", text: "<b>Yes.</b> You can weigh it.", color: "#2a9d8f" },
-        { icon: "📦", title: "Does it have volume?", text: "<b>Yes.</b> It takes up space.", color: "#2a9d8f" },
-        { icon: "🏀", title: "Is it matter?", text: "<b>Yes!</b> It has mass and volume, so it is matter.", color: "#e4572e" }
-      ] },
-      { type: "states", title: "Water in its three states", intro: "Ice is a solid, water is a liquid, steam is a gas. Watch how the particles move in each one." },
-      { type: "table", title: "What each state is like", head: ["State", "Shape", "Volume", "What else?"], rows: [
-        ["Solid", "<mark>Fixed shape</mark>", "<mark>Fixed volume</mark>", "Can be hard, elastic, transparent and so on"],
-        ["Liquid", "Takes the shape of its container", "<mark>Fixed volume</mark>", "You can pour it. It can be viscous or volatile"],
-        ["Gas", "Spreads to fill its container", "Spreads to fill its container", "The particles move around freely and are far apart"]
-      ] }
-    ],
-    steps: [
-      "<b>Solids</b> have a fixed shape and a fixed volume. They can be hard, elastic, transparent and so on.",
-      "<b>Liquids</b> have a fixed volume, but they take the shape of their container. You can pour them. They can be viscous (thick) or volatile (they turn into gas easily).",
-      "<b>Gases</b> spread to fill their container. The particles move around freely and are far apart.",
-      "To decide if something is matter, ask two questions: does it have <b>mass</b>? Does it have <b>volume</b>? Two yeses = matter."
-    ],
-    example: "Water: an <b>ice cube</b> keeps its shape (solid). <b>Water in a glass</b> takes the shape of the glass, and you can pour it (liquid). <b>Steam</b> from boiling water spreads out into the air (gas).",
-    tip: "<b>Solid</b> = keeps its shape. <b>Liquid</b> = pours and takes the shape of the glass. <b>Gas</b> = spreads everywhere. (Sólido, líquido, gas.)",
+    title: "States of matter",
+    week: "Worksheet · pages 60–61",
+    summary: "Solids, liquids and gases.",
+    definition: "<b>Matter</b> is anything that has <b>mass</b> and <b>volume</b> (a basketball is matter). <b>Solids</b> have a fixed shape and volume. <b>Liquids</b> have a fixed volume, take the shape of their container, and you can pour them. <b>Gases</b> spread to fill their container: their particles are far apart and move around freely.",
+    visual: { type: "states", title: "The particles in each state" },
+    tip: "<b>Solid</b> keeps its shape · <b>liquid</b> pours · <b>gas</b> spreads everywhere. Only a gas can be <b>squashed</b>. (Sólido, líquido, gas.)",
     questions: [
-      { prompt: "Which two things does all matter have?", options: ["Mass and volume", "Color and shape", "Heat and light", "Water and air"], answer: 0, feedback: "Matter is anything that has mass and volume." },
-      { context: "A basketball has mass, and it has volume.", prompt: "Is a basketball matter?", options: ["No, because it is round", "Yes, because it has mass and volume", "No, because it is full of air", "Only when it bounces"], answer: 1, feedback: "Yes. Anything with mass and volume is matter, and a basketball has both." },
-      { context: "Complete the sentence with gases, liquids or solids.", prompt: "«______ spread to fill their container. The particles move around freely and are far apart.»", options: ["Solids", "Liquids", "Gases", "Metals"], answer: 2, feedback: "Gases spread to fill their container. Their particles move freely and are far apart." },
-      { context: "Complete the sentence with gases, liquids or solids.", prompt: "«______ have a fixed shape and volume. They can be hard, elastic, transparent and so on.»", options: ["Gases", "Solids", "Liquids", "Vapors"], answer: 1, feedback: "Solids have a fixed shape and a fixed volume." },
-      { context: "Complete the sentence with gases, liquids or solids.", prompt: "«______ have a fixed volume, and they take the shape of their container. You can pour them.»", options: ["Liquids", "Solids", "Gases", "Rocks"], answer: 0, feedback: "Liquids keep their volume but take the shape of the container, and you can pour them." },
-      { prompt: "Which state of water is a gas?", options: ["Ice", "Steam", "Water in a glass", "An ice cube"], answer: 1, feedback: "Steam is water as a gas. Ice is the solid and the water in a glass is the liquid." },
-      { visual: { type: "states", only: "gas", text: false, labels: false }, prompt: "Which state of matter does this picture show?", options: ["Solid", "Liquid", "Gas", "Matter with no state"], answer: 2, feedback: "The particles are far apart and move in every direction: that is a gas." },
-      { visual: { type: "states", only: "solid", text: false, labels: false }, prompt: "Which state of matter does this picture show?", options: ["Liquid", "Gas", "Steam", "Solid"], answer: 3, feedback: "The particles are tightly packed in neat rows: that is a solid." },
-      { visual: { type: "states", only: "liquid", text: false, labels: false }, prompt: "Which state of matter does this picture show?", options: ["Liquid", "Solid", "Gas", "Ice"], answer: 0, feedback: "The particles are close together but not in neat rows, and they slide around: that is a liquid." }
+      { context: "A basketball has mass and volume.", prompt: "Is a basketball matter?", options: ["No, because it is round", "Yes, because it has mass and volume", "No, because it is full of air", "Only when it bounces"], answer: 1, feedback: "Anything with mass and volume is matter." },
+      { visual: { type: "states", only: "liquid", text: false, labels: false }, prompt: "Which state of matter is this?", options: ["Solid", "Gas", "Liquid", "Vapor"], answer: 2, feedback: "The particles are close together but move around: a liquid." },
+      { context: "Complete with gases, liquids or solids.", prompt: "«______ spread to fill their container. The particles move around freely and are far apart.»", options: ["Gases", "Solids", "Liquids", "Rocks"], answer: 0, feedback: "Gases spread to fill their container." },
+      { context: "Complete with gases, liquids or solids.", prompt: "«______ have a fixed shape and volume. They can be hard, elastic, transparent and so on.»", options: ["Gases", "Liquids", "Vapors", "Solids"], answer: 3, feedback: "Solids have a fixed shape and a fixed volume." },
+      { context: "Complete with gases, liquids or solids.", prompt: "«______ have a fixed volume, and they take the shape of their container. You can pour them.»", options: ["Liquids", "Solids", "Gases", "Metals"], answer: 0, feedback: "Liquids keep their volume but take the shape of the container." },
+      { prompt: "In which state can you squash the particles together?", options: ["Solid", "Gas", "Liquid", "None of them"], answer: 1, feedback: "Only in a gas: its particles are far apart, so there is space between them." },
+      { context: "Use the chart: you can pour sugar, but its particles do not move around.", prompt: "What is sugar?", options: ["A gas", "A liquid", "A solid", "A vapor"], answer: 2, feedback: "Sugar is a solid. You can pour it, but its particles do not move around." }
     ]
   },
-
-  /* ---------- 3. How particles behave ---------- */
   {
-    title: "Particles: do they touch, move or squash?",
-    week: "Part 2 · States of matter",
-    summary: "Three questions tell a solid from a liquid from a gas: do the particles touch, can they move around, and can you squash them?",
-    definition: "In a <b>solid</b> the particles touch and stay in place. In a <b>liquid</b> the particles touch but can move around. In a <b>gas</b> the particles are far apart, move around freely and can be <b>squashed</b> together because there is space between them.",
-    visuals: [
-      { type: "table", title: "The particle table", head: ["Question", "Solid", "Liquid", "Gas"], rows: [
-        ["Do the particles touch each other?", "<mark>Yes</mark>", "<mark>Yes</mark>", "No"],
-        ["Can the particles move around?", "No", "<mark>Yes</mark>", "<mark>Yes</mark>"],
-        ["Can you squash the particles together?", "No", "No", "<mark>Yes</mark>"]
-      ] },
-      { type: "decision", title: "Classify a material", intro: "Follow the questions to classify oxygen, stone, sugar and water, like the chart on your worksheet.", steps: [
-        { q: "Does it spread to fill the container?", answers: [{ ans: "Yes", item: "oxygen", state: "gas" }, { ans: "No", next: true }] },
-        { q: "Can you pour it?", answers: [{ ans: "No", item: "stone", state: "solid" }, { ans: "Yes", next: true }] },
-        { q: "Can the particles move around?", answers: [{ ans: "Yes", item: "water", state: "liquid" }, { ans: "No", item: "sugar", state: "solid" }] }
-      ] }
-    ],
-    steps: [
-      "<b>Touch?</b> Solid yes, liquid yes, gas no (gas particles are far apart).",
-      "<b>Move around?</b> Solid no, liquid yes, gas yes.",
-      "<b>Squash together?</b> Solid no, liquid no, gas yes. Only a gas has space between its particles.",
-      "Sugar is a solid even though you can pour it: each grain is a tiny solid, and its particles do not move around."
-    ],
-    example: "<b>Oxygen</b> spreads to fill its container → gas. <b>Stone</b> cannot be poured → solid. <b>Water</b> can be poured and its particles move around → liquid. <b>Sugar</b> can be poured, but its particles do not move around → solid.",
-    tip: "Only a <b>gas</b> says yes to «squash». Only a <b>solid</b> says no to «move». The <b>liquid</b> is the one in the middle: touch yes, move yes, squash no.",
+    title: "Changes of matter",
+    week: "Worksheet · pages 70–71",
+    summary: "Changes of state, and physical or chemical changes.",
+    definition: "<b>Melting</b>: solid → liquid. <b>Freezing</b>: liquid → solid. <b>Evaporation</b>: liquid → gas. <b>Condensation</b>: gas → liquid. A change of shape or of state is a <b>physical change</b> (reversible). Burning, rusting and cooking are <b>chemical changes</b>: they make a <b>new substance</b> (irreversible).",
+    visual: { type: "cycle", title: "The four changes of state" },
+    tip: "Temperature <b>up</b> 🔥: melting, evaporation. Temperature <b>down</b> ❄️: condensation, freezing. <b>New substance = chemical change.</b>",
     questions: [
-      { prompt: "In which state do the particles NOT touch each other?", options: ["Gas", "Solid", "Liquid", "Solid and liquid"], answer: 0, feedback: "In a gas the particles are far apart, so they do not touch. In solids and liquids they touch." },
-      { prompt: "In which state can the particles NOT move around?", options: ["Liquid", "Solid", "Gas", "Gas and liquid"], answer: 1, feedback: "In a solid the particles stay in place. In liquids and gases they can move around." },
-      { prompt: "In which state can you squash the particles together?", options: ["Solid", "Liquid", "Gas", "All of them"], answer: 2, feedback: "Only in a gas. Gas particles are far apart, so there is space to squash them together." },
-      { prompt: "Oxygen spreads to fill its container. What is it?", options: ["A solid", "A liquid", "A powder", "A gas"], answer: 3, feedback: "Something that spreads to fill its container is a gas. Oxygen is a gas." },
-      { prompt: "You cannot pour a stone. What is it?", options: ["A solid", "A liquid", "A gas", "Matter with no state"], answer: 0, feedback: "A stone does not spread and you cannot pour it: it is a solid." },
-      { prompt: "You can pour water, and its particles move around. What is it?", options: ["A gas", "A liquid", "A solid", "A powder"], answer: 1, feedback: "You can pour it and the particles move around: water is a liquid." },
-      { prompt: "You can pour sugar, but its particles do not move around. What is it?", options: ["A gas", "A liquid", "A solid", "A vapor"], answer: 2, feedback: "Sugar can be poured, but its particles do not move around, so it is a solid." },
-      { prompt: "In a liquid, do the particles touch each other?", options: ["Yes, and they can move around", "No, they are far apart", "Yes, and they cannot move", "No, and they cannot move"], answer: 0, feedback: "Liquid particles touch each other and can move around. That is why you can pour a liquid." }
+      { prompt: "Water drops form on a cold window. Which change of state is it?", options: ["Melting", "Freezing", "Evaporation", "Condensation"], answer: 3, feedback: "Gas → liquid is condensation." },
+      { prompt: "Freezing is the change from…", options: ["liquid to solid", "solid to liquid", "liquid to gas", "gas to liquid"], answer: 0, feedback: "Freezing: liquid → solid." },
+      { prompt: "Evaporation is the change from…", options: ["solid to liquid", "liquid to gas", "gas to liquid", "liquid to solid"], answer: 1, feedback: "Evaporation: liquid → gas." },
+      { prompt: "«______ happens when the temperature of a liquid drops. The particles stop moving around and become fixed in place.»", options: ["Melting", "Evaporation", "Freezing", "Condensation"], answer: 2, feedback: "Freezing. Melting is the opposite: the temperature of a solid rises and the particles start to move." },
+      { prompt: "Which photo shows a physical change?", options: ["A campfire", "A rusty bike", "A child folding paper", "An egg cooking"], answer: 2, feedback: "Folding paper only changes the shape. Burning, rusting and cooking make a new substance." },
+      { prompt: "Which sentence is true?", options: ["A chemical change produces a new substance", "A change from solid to gas is a chemical change", "Rusting is a physical change", "A change in shape is a chemical change"], answer: 0, feedback: "A chemical change produces a new substance. A change of state or shape is physical, and rusting is chemical." },
+      { prompt: "Wood burns and becomes ash. Reversible or irreversible?", options: ["Reversible", "Irreversible", "It is a change of state", "It is a physical change"], answer: 1, feedback: "Irreversible: ash is a new substance. Boiling water and melting wax are reversible." }
     ]
   },
-
-  /* ---------- 4. Changes of state ---------- */
   {
-    title: "Changes of state",
-    week: "Part 3 · Changes of matter",
-    summary: "When the temperature rises or drops, matter changes from one state to another.",
-    definition: "A <b>change of state</b> happens when the temperature changes. <b>Melting</b>: solid → liquid. <b>Freezing</b>: liquid → solid. <b>Evaporation</b>: liquid → gas. <b>Condensation</b>: gas → liquid.",
-    visuals: [
-      { type: "cycle", title: "The four changes of state", intro: "Going right, the temperature rises. Going left, the temperature drops." },
-      { type: "cards", cols: 4, title: "Changes of state you can see", intro: "The four photos on your worksheet.", items: [
-        { icon: "🪟", title: "Condensation", text: "Water drops form on a cold window: <b>gas → liquid</b>.", color: "#1d4ed8" },
-        { icon: "🌫️", title: "Evaporation", text: "Mist rises from a lake: <b>liquid → gas</b>.", color: "#c2410c" },
-        { icon: "💧", title: "Melting", text: "Icicles drip: <b>solid → liquid</b>.", color: "#c2410c" },
-        { icon: "❄️", title: "Freezing", text: "A river turns into ice: <b>liquid → solid</b>.", color: "#1d4ed8" }
-      ] }
-    ],
-    steps: [
-      "<b>Freezing</b> happens when the temperature of a liquid <b>drops</b>. The particles stop moving around and become fixed in place.",
-      "<b>Melting</b> happens when the temperature of a solid <b>rises</b>. The particles start to move around freely.",
-      "<b>Evaporation</b>: a liquid turns into a gas (liquid → gas).",
-      "<b>Condensation</b>: a gas turns into a liquid (gas → liquid)."
-    ],
-    example: "Your worksheet photos: water drops on a window = <b>condensation</b>; mist over a lake = <b>evaporation</b>; icicles dripping = <b>melting</b>; a frozen river = <b>freezing</b>.",
-    tip: "Temperature <b>up</b> 🔥: melting, then evaporation. Temperature <b>down</b> ❄️: condensation, then freezing. (Fusión, evaporación, condensación, solidificación.)",
+    title: "The skeleton",
+    week: "Poster + Lesson 1.1",
+    summary: "206 bones that support, shape, protect and move the body.",
+    definition: "The skeleton has <b>206 bones</b>. It <b>supports</b> the body, <b>gives it shape</b> and <b>protects</b> the organs: the <b>ribs</b> protect the heart and lungs, the <b>skull</b> protects the brain. Bones help the body move, but it can only bend at the <b>joints</b>, where two or more bones meet.",
+    visual: { type: "skeleton", title: "The bones on the poster", intro: "Touch or hover a name to light up the bone." },
+    tip: "Arm: <b>humerus</b>, then <b>radius + ulna</b>. Leg: <b>femur</b>, <b>patella</b> (knee), then <b>tibia + fibula</b>. The poster says «tibula»; the book says tibia.",
     questions: [
-      { prompt: "Freezing is the change from…", options: ["liquid to solid", "solid to liquid", "liquid to gas", "gas to liquid"], answer: 0, feedback: "Freezing: liquid → solid. The temperature of the liquid drops." },
-      { prompt: "Melting is the change from…", options: ["gas to liquid", "solid to liquid", "liquid to gas", "liquid to solid"], answer: 1, feedback: "Melting: solid → liquid. The temperature of the solid rises." },
-      { prompt: "Evaporation is the change from…", options: ["solid to liquid", "gas to liquid", "liquid to gas", "liquid to solid"], answer: 2, feedback: "Evaporation: liquid → gas." },
-      { prompt: "Condensation is the change from…", options: ["liquid to gas", "solid to liquid", "liquid to solid", "gas to liquid"], answer: 3, feedback: "Condensation: gas → liquid." },
-      { prompt: "«______ happens when the temperature of a liquid drops. The particles stop moving around and become fixed in place.»", options: ["Freezing", "Melting", "Evaporation", "Condensation"], answer: 0, feedback: "Freezing. The liquid gets colder, and its particles become fixed in place: it is now a solid." },
-      { prompt: "«______ happens when the temperature of a solid rises. The particles start to move around freely.»", options: ["Condensation", "Melting", "Freezing", "Evaporation"], answer: 1, feedback: "Melting. The solid gets warmer, and its particles start to move around: it is now a liquid." },
-      { prompt: "Water drops appear on a cold window. Which change of state is it?", options: ["Melting", "Freezing", "Condensation", "Evaporation"], answer: 2, feedback: "The gas in the air turns into liquid drops on the cold glass: condensation." },
-      { prompt: "Icicles are dripping in the sun. Which change of state is it?", options: ["Condensation", "Freezing", "Evaporation", "Melting"], answer: 3, feedback: "The solid ice turns into liquid water: melting." },
-      { prompt: "Mist rises from a lake in the morning. Which change of state is it?", options: ["Evaporation", "Freezing", "Melting", "Condensation"], answer: 0, feedback: "Liquid water turns into a gas and rises: evaporation." }
-    ]
-  },
-
-  /* ---------- 5. Physical and chemical changes ---------- */
-  {
-    title: "Physical and chemical changes",
-    week: "Part 3 · Changes of matter",
-    summary: "Some changes can be undone, and some make a new substance.",
-    definition: "A <b>physical change</b> changes the shape or the state of a material, but it is still the same substance. It is <b>reversible</b>. A <b>chemical change</b> produces a <b>new substance</b>. It is <b>irreversible</b>: you cannot get the original material back.",
-    visuals: [
-      { type: "compare", title: "Physical or chemical?", cols: [
-        { title: "Physical change", color: "#2a9d8f", sub: "Reversible · same substance", items: ["A change in <b>shape</b> (folding paper)", "A <b>change of state</b> (water boils and becomes steam, candle wax melts)", "You can get the original material back"] },
-        { title: "Chemical change", color: "#e4572e", sub: "Irreversible · new substance", items: ["<b>Burning</b> (wood burns and becomes ash)", "<b>Rusting</b> (a bike rusts)", "<b>Cooking</b> (an egg cooks)", "A new substance is produced. You cannot go back"] }
-      ] },
-      { type: "cards", cols: 5, title: "Reversible or irreversible?", intro: "The five changes from your worksheet.", items: [
-        { icon: "♨️", title: "Water boils", text: "Becomes steam. <b>Reversible</b>", color: "#2a9d8f" },
-        { icon: "🔥", title: "Wood burns", text: "Becomes ash. <b>Irreversible</b>", color: "#e4572e" },
-        { icon: "🕯️", title: "Candle wax melts", text: "Solid → liquid. <b>Reversible</b>", color: "#2a9d8f" },
-        { icon: "🚲", title: "A bike rusts", text: "New substance: rust. <b>Irreversible</b>", color: "#e4572e" },
-        { icon: "🍳", title: "An egg cooks", text: "New substance. <b>Irreversible</b>", color: "#e4572e" }
-      ] }
-    ],
-    steps: [
-      "Ask: is there a <b>new substance</b>? If yes → chemical change. If no → physical change.",
-      "A change in <b>shape</b> is a physical change (folding paper).",
-      "A <b>change of state</b> is a physical change too (boiling water, melting wax). It is NOT a chemical change.",
-      "<b>Rusting</b>, <b>burning</b> and <b>cooking</b> are chemical changes: they produce a new substance and are irreversible."
-    ],
-    example: "On your worksheet: the <b>boiling pot</b> and the <b>folded paper</b> show physical changes. The <b>campfire</b> and the <b>rusty bike</b> show chemical changes.",
-    tip: "<b>Physical</b> = you can get it <b>back</b> (reversible). <b>Chemical</b> = something <b>new</b> was made, no way back (irreversible). (Cambio físico / cambio químico.)",
-    questions: [
-      { prompt: "A change in shape is…", options: ["a physical change", "a chemical change", "not a change", "a change of state"], answer: 0, feedback: "A change in shape (like folding paper) is a physical change. It is still the same material." },
-      { prompt: "A chemical change produces…", options: ["the same substance", "a new substance", "only a change of shape", "nothing"], answer: 1, feedback: "A chemical change produces a new substance, like ash from burning wood." },
-      { prompt: "Rusting is an example of…", options: ["a change of state", "a physical change", "a chemical change", "melting"], answer: 2, feedback: "Rusting is a chemical change: rust is a new substance, and the change is irreversible." },
-      { context: "True or false: «The change of state from a solid to a gas is a chemical change.»", prompt: "What is the right answer?", options: ["False: a change of state is a physical change", "True: every change of state is chemical", "True: the gas is a new substance", "False: a change of state is not a change"], answer: 0, feedback: "False. A change of state is a physical change: the material is still the same substance." },
-      { prompt: "Water boils and becomes steam. Is this reversible or irreversible?", options: ["Irreversible", "Reversible", "It is a chemical change", "It is not a change"], answer: 1, feedback: "Reversible: the steam can turn back into water. Boiling is a change of state, a physical change." },
-      { prompt: "Wood burns and becomes ash. Is this reversible or irreversible?", options: ["Reversible", "It is a physical change", "Irreversible", "It is a change of state"], answer: 2, feedback: "Irreversible: ash is a new substance, and you cannot turn it back into wood. Burning is a chemical change." },
-      { prompt: "Which photo shows a physical change?", options: ["A campfire", "A rusty bike", "An egg cooking", "A child folding paper"], answer: 3, feedback: "Folding paper changes the shape, not the substance: a physical change. The others are chemical changes." },
-      { prompt: "Candle wax melts. What kind of change is it?", options: ["Physical and reversible", "Chemical and irreversible", "Chemical and reversible", "Physical and irreversible"], answer: 0, feedback: "Melting is a change of state: physical and reversible. The wax can become solid again." },
-      { prompt: "An egg cooks. What kind of change is it?", options: ["Physical and reversible", "Chemical and irreversible", "A change of state", "Physical and irreversible"], answer: 1, feedback: "Cooking makes a new substance and you cannot get the raw egg back: chemical and irreversible." }
-    ]
-  },
-
-  /* ---------- 6. The skeleton: bones to know ---------- */
-  {
-    title: "The skeleton: the bones to know",
-    week: "Part 4 · The human body",
-    summary: "Learn the names of the main bones and where they are.",
-    definition: "The human <b>skeleton</b> has <b>206 bones</b>. Bones are strong and hard. The main ones you need to know are the <b>skull</b>, the <b>vertebrae</b>, the <b>sternum</b>, the <b>ribs</b>, the <b>humerus</b>, the <b>radius</b>, the <b>ulna</b>, the <b>pelvis</b>, the <b>femur</b>, the <b>patella</b>, the <b>tibia</b> and the <b>fibula</b>.",
-    visuals: [
-      { type: "skeleton", title: "The skeleton", intro: "Touch or hover a name to light up that bone. The colors are the same as on the poster from class." },
-      { type: "table", title: "Where is each bone?", head: ["Bone", "Where it is"], rows: [
-        ["Skull", "The head. It protects the brain"],
-        ["Vertebra", "One bone of the spine (backbone). The spine has 33 vertebrae"],
-        ["Sternum", "The center of the chest, in front"],
-        ["Rib", "The curved bones around the chest. Together they form the rib cage"],
-        ["Pelvis", "The hip"],
-        ["Humerus", "The upper arm"],
-        ["Radius", "The forearm (one of its two bones)"],
-        ["Ulna", "The forearm (the other bone)"],
-        ["Femur", "The thigh (upper leg)"],
-        ["Patella", "The knee (the kneecap)"],
-        ["Tibia", "The lower leg"],
-        ["Fibula", "The lower leg, next to the tibia"]
-      ] }
-    ],
-    steps: [
-      "<b>Head</b>: the <b>skull</b> (and the jaw).",
-      "<b>Torso</b>: the <b>spine</b> is made of <b>vertebrae</b>; the <b>ribs</b> form the rib cage; the <b>sternum</b> is in the middle of the chest; the <b>pelvis</b> is at the hip.",
-      "<b>Arms</b>: <b>humerus</b> (upper arm), then <b>radius</b> and <b>ulna</b> (forearm).",
-      "<b>Legs</b>: <b>femur</b> (thigh), <b>patella</b> (knee), then <b>tibia</b> and <b>fibula</b> (lower leg)."
-    ],
-    example: "Touch your own body: the skull is your head, the sternum is in the middle of your chest, the humerus is your upper arm, the femur is your thigh and the patella is your knee.",
-    tip: "Arm and leg match up: <b>humerus ↔ femur</b> (one big bone each), <b>radius + ulna ↔ tibia + fibula</b> (two bones each). The <b>patella</b> is the extra one at the knee. The poster in class spells tibia as «tibula», but the book says <b>tibia</b>.",
-    questions: [
-      { visual: { type: "skeleton", labels: false, highlight: "skull" }, prompt: "Which bone is highlighted in yellow?", options: ["Skull", "Sternum", "Pelvis", "Femur"], answer: 0, feedback: "The skull is the bone of the head. It protects the brain." },
-      { visual: { type: "skeleton", labels: false, highlight: "humerus" }, prompt: "Which bone is highlighted in yellow?", options: ["Femur", "Humerus", "Tibia", "Ulna"], answer: 1, feedback: "The humerus is the bone of the upper arm." },
-      { prompt: "Which two bones are in the forearm?", options: ["Tibia and fibula", "Femur and patella", "Radius and ulna", "Humerus and sternum"], answer: 2, feedback: "The forearm has two bones: the radius and the ulna. The tibia and fibula are in the lower leg." },
-      { visual: { type: "skeleton", labels: false, highlight: "femur" }, prompt: "Which bone is highlighted in yellow?", options: ["Humerus", "Radius", "Fibula", "Femur"], answer: 3, feedback: "The femur is the bone of the thigh (the upper leg)." },
-      { visual: { type: "skeleton", labels: false, highlight: "patella" }, prompt: "Which bone is highlighted in yellow?", options: ["Patella", "Pelvis", "Vertebra", "Rib"], answer: 0, feedback: "The patella is the small round bone at the knee: the kneecap." },
-      { prompt: "Which two bones are in the lower leg?", options: ["Radius and ulna", "Tibia and fibula", "Femur and pelvis", "Humerus and ulna"], answer: 1, feedback: "The lower leg has the tibia and the fibula. The radius and ulna are in the forearm." },
-      { visual: { type: "skeleton", labels: false, highlight: "sternum" }, prompt: "Which bone is highlighted in yellow?", options: ["Pelvis", "Fibula", "Ulna", "Sternum"], answer: 3, feedback: "The sternum is the flat bone in the center of the chest, where the ribs meet in front." },
-      { visual: { type: "skeleton", labels: false, highlight: "pelvis" }, prompt: "Which bone is highlighted in yellow?", options: ["Pelvis", "Skull", "Tibia", "Radius"], answer: 0, feedback: "The pelvis is the bone at the hip." },
-      { visual: { type: "skeleton", labels: false, highlight: "rib" }, prompt: "Which bones are highlighted in yellow?", options: ["The vertebrae", "The ribs", "The sternums", "The ulnas"], answer: 1, feedback: "The ribs are the curved bones around the chest. Together they form the rib cage." },
-      { visual: { type: "skeleton", labels: false, highlight: "vertebra" }, prompt: "Which bones are highlighted in yellow?", options: ["The ribs", "The patellas", "The vertebrae", "The femurs"], answer: 2, feedback: "The vertebrae are the bones of the spine, or backbone." }
-    ]
-  },
-
-  /* ---------- 7. What the skeleton does ---------- */
-  {
-    title: "What does the skeleton do?",
-    week: "Part 4 · The human body",
-    summary: "The skeleton supports the body, gives it shape, protects the organs and helps it move.",
-    definition: "The human skeleton has <b>206 bones</b>. Bones are strong and hard. The skeleton <b>supports</b> the body, <b>gives it shape</b> and <b>protects</b> the internal organs. Bones also help the body <b>move</b>: the skeleton can only bend where there are <b>joints</b>, the places where two or more bones meet.",
-    visuals: [
-      { type: "cards", cols: 3, title: "The three main parts of the skeleton", items: [
-        { icon: "🙂", title: "Head", text: "The <b>skull</b> and the <b>jaw</b>. The skull protects the brain.", color: "#c2185b" },
-        { icon: "🫁", title: "Torso", text: "The <b>spine</b> (backbone) and the <b>rib cage</b>. The ribs protect the heart and the lungs.", color: "#2a9d8f" },
-        { icon: "🦵", title: "Limbs", text: "The <b>arms</b> and the <b>legs</b>. Their bones help your limbs move.", color: "#e4572e" }
-      ] },
-      { type: "table", title: "Three kinds of bones", head: ["Kind", "Where they are", "Examples"], rows: [
-        ["Short bones", "Hands and feet", "The bones in your hands and feet"],
-        ["Long bones", "Arms and legs", "Humerus, femur"],
-        ["Flat bones", "Skull and rib cage", "Skull, ribs"]
-      ] },
-      { type: "cards", cols: 2, title: "Bones protect the soft organs inside you", items: [
-        { icon: "🧠", title: "The skull protects the brain", text: "A hard, flat bone all around the brain.", color: "#c2185b" },
-        { icon: "❤️", title: "The ribs protect the heart and the lungs", text: "The rib cage surrounds them.", color: "#e4572e" }
-      ] }
-    ],
-    steps: [
-      "The skeleton has <b>206 bones</b>. Bones are strong and hard.",
-      "Four jobs: <b>support</b> the body, <b>give it shape</b>, <b>protect</b> the internal organs, and help the body <b>move</b>.",
-      "<b>Joints</b> are where two or more bones meet. The skeleton can only bend at the joints.",
-      "Three main parts: the <b>head</b> (skull and jaw), the <b>torso</b> (spine and rib cage) and the <b>limbs</b> (arms and legs).",
-      "The <b>spine</b> is at the back of the torso. It has <b>33 bones called vertebrae</b>. It supports the torso and gives shape to the body."
-    ],
-    example: "Bend your elbow and your knee: you can only bend there because they are <b>joints</b>. Now feel your ribs: they are the cage that protects your heart and lungs.",
-    tip: "Think <b>S-S-P-M</b>: <b>S</b>upport, <b>S</b>hape, <b>P</b>rotect, <b>M</b>ove. And two numbers: <b>206</b> bones in the skeleton, <b>33</b> vertebrae in the spine. (Esqueleto, articulaciones, columna vertebral.)",
-    questions: [
-      { prompt: "How many bones does the human skeleton have?", options: ["206", "650", "33", "100"], answer: 0, feedback: "The human skeleton has 206 bones. (650 is the number of muscles, and 33 is the number of vertebrae.)" },
-      { prompt: "Which bones protect the heart?", options: ["the skull", "the ribs", "the vertebrae", "the femur"], answer: 1, feedback: "The ribs protect the heart and the lungs." },
+      { prompt: "Which bones protect the heart?", options: ["the skull", "the ribs", "the vertebrae", "the femur"], answer: 1, feedback: "The ribs protect the heart and lungs." },
       { prompt: "Which bones protect the brain?", options: ["the ribs", "the vertebrae", "the skull", "the pelvis"], answer: 2, feedback: "The skull protects the brain." },
-      { prompt: "What are joints?", options: ["short bones", "long bones", "flat bones", "the places where two or more bones meet"], answer: 3, feedback: "Joints are where two or more bones meet. The skeleton can only bend where there are joints." },
-      { prompt: "What are the three main parts of the skeleton?", options: ["The head, the torso and the limbs", "The skull, the ribs and the spine", "The arms, the legs and the hands", "The brain, the heart and the lungs"], answer: 0, feedback: "The three main parts are the head, the torso and the limbs (the arms and legs)." },
-      { prompt: "How many vertebrae does the spine have?", options: ["206", "33", "12", "650"], answer: 1, feedback: "The spine has 33 bones called vertebrae." },
-      { prompt: "Where are the long bones?", options: ["In the skull", "In the hands and feet", "In the arms and legs", "In the rib cage"], answer: 2, feedback: "The long bones are in the arms and legs. Short bones are in the hands and feet, and flat bones in the skull and rib cage." },
-      { prompt: "Where are the flat bones?", options: ["In the arms", "In the legs", "In the hands and feet", "In the skull and the rib cage"], answer: 3, feedback: "Flat bones are in the skull and the rib cage." },
-      { prompt: "Which of these is NOT a job of the skeleton?", options: ["Supporting the body", "Pumping blood", "Protecting the internal organs", "Giving the body shape"], answer: 1, feedback: "The skeleton supports the body, gives it shape, protects the organs and helps it move. Pumping blood is the heart's job." }
+      { prompt: "What are joints?", options: ["short bones", "long bones", "flat bones", "the place where bones meet"], answer: 3, feedback: "Joints are where two or more bones meet. The skeleton can only bend there." },
+      { visual: { type: "skeleton", labels: false, highlight: "femur" }, prompt: "Which bone is highlighted?", options: ["Femur", "Humerus", "Tibia", "Ulna"], answer: 0, feedback: "The femur is the bone of the thigh." },
+      { visual: { type: "skeleton", labels: false, highlight: "humerus" }, prompt: "Which bone is highlighted?", options: ["Femur", "Humerus", "Radius", "Fibula"], answer: 1, feedback: "The humerus is the bone of the upper arm." },
+      { visual: { type: "skeleton", labels: false, highlight: "patella" }, prompt: "Which bone is highlighted?", options: ["Pelvis", "Rib", "Patella", "Sternum"], answer: 2, feedback: "The patella is the small bone at the knee." }
     ]
   },
-
-  /* ---------- 8. The muscular system ---------- */
   {
-    title: "The muscular system",
-    week: "Part 4 · The human body",
-    summary: "Muscles and tendons move the bones. Muscles contract and relax, and they work in pairs.",
-    definition: "The <b>muscular system</b> is made up of all the <b>muscles</b> and <b>tendons</b> in the body. Muscles <b>contract</b> (get shorter) and <b>relax</b> (get longer). <b>Tendons</b> connect muscles to bones: when a muscle contracts, the tendon pulls on the bone and moves it. Bones cannot move without muscles. There are around <b>650 muscles</b> in the human body.",
-    visuals: [
-      { type: "arm", title: "Muscles work in pairs", intro: "Choose a movement and watch which muscle contracts (red, short) and which one relaxes (pale, long)." },
-      { type: "cards", cols: 3, title: "Muscles to know", intro: "The muscles labeled on the picture from class.", items: [
-        { icon: "💪", title: "Biceps", text: "Upper arm. It contracts when you <b>bend</b> your arm.", color: "#e4572e" },
-        { icon: "🦾", title: "Triceps", text: "Back of the arm. It contracts when you <b>straighten</b> your arm.", color: "#4f6d9a" },
-        { icon: "🏋️", title: "Pectoral", text: "The muscle of the chest.", color: "#2a9d8f" },
-        { icon: "🧘", title: "Abdominals", text: "The muscles of the belly.", color: "#2a9d8f" },
-        { icon: "🦵", title: "Thigh", text: "The pair at the front and back of your thigh bends and straightens your leg.", color: "#2a9d8f" },
-        { icon: "🦶", title: "Calf", text: "The back of the lower leg.", color: "#2a9d8f" }
-      ] }
-    ],
-    steps: [
-      "Muscles <b>contract</b>: they get <b>shorter</b>. Muscles <b>relax</b>: they get <b>longer</b>.",
-      "<b>Tendons</b> attach muscles to <b>bones</b>. When the muscle contracts, the tendon pulls on the bone and moves it.",
-      "Muscles work in <b>pairs</b>: when one muscle in a pair contracts, the other relaxes.",
-      "<b>Bend</b> your arm: the <b>biceps</b> contracts and the <b>triceps</b> relaxes. <b>Straighten</b> your arm: the <b>triceps</b> contracts and the <b>biceps</b> relaxes.",
-      "The skeleton and the muscular system work together: muscles pull on the bones through tendons, and the skeleton bends at the joints."
-    ],
-    example: "Bend your arm and feel the top of your upper arm get hard and short: that is the <b>biceps</b> contracting. The muscle at the back, the <b>triceps</b>, is relaxed and long. Now straighten your arm: they swap.",
-    tip: "<b>Contract = shorter</b>, <b>relax = longer</b>. <b>Bi</b>ceps <b>b</b>ends, <b>tri</b>ceps s<b>tr</b>aightens. <b>Tendons</b> tie muscles to bones. About <b>650</b> muscles. (Músculos, tendones, contraer, relajar.)",
+    title: "Muscles",
+    week: "Lesson 1.2",
+    summary: "Muscles and tendons move the bones.",
+    definition: "The <b>muscular system</b> is made up of <b>muscles</b> and <b>tendons</b>. Muscles <b>contract</b> (get shorter) and <b>relax</b> (get longer). <b>Tendons</b> attach muscles to <b>bones</b>. Muscles work in pairs: when you <b>bend</b> your arm the <b>biceps</b> contracts and the <b>triceps</b> relaxes. When you <b>straighten</b> it, they swap.",
+    visual: { type: "arm", title: "Bend or straighten your arm" },
+    tip: "<b>Contract = shorter</b>, <b>relax = longer</b>. <b>Bi</b>ceps <b>b</b>ends, <b>tri</b>ceps s<b>tr</b>aightens. (Músculos, tendones.)",
     questions: [
-      { prompt: "The muscular system is made up of…", options: ["muscles and bones", "muscles and tendons", "bones and joints", "tendons and organs"], answer: 1, feedback: "The muscular system is made up of all the muscles and tendons in the body." },
-      { prompt: "When a muscle contracts, it gets…", options: ["shorter", "longer", "softer", "bigger and longer"], answer: 0, feedback: "When a muscle contracts, it gets shorter. When it relaxes, it gets longer." },
-      { prompt: "Tendons attach muscles to…", options: ["organs", "other muscles", "bones", "the skin"], answer: 2, feedback: "Tendons connect muscles to bones. When the muscle contracts, the tendon pulls on the bone." },
-      { prompt: "Muscles work in pairs. When one muscle contracts, the other…", options: ["also contracts", "disappears", "gets shorter", "relaxes"], answer: 3, feedback: "When one muscle in a pair contracts, the other relaxes." },
-      { prompt: "When you bend your arm…", options: ["the biceps contracts and the triceps relaxes", "the triceps contracts and the biceps relaxes", "both muscles contract", "both muscles relax"], answer: 0, feedback: "Bending the arm: the biceps contracts (gets shorter) and the triceps relaxes (gets longer)." },
-      { prompt: "When you straighten your arm…", options: ["the biceps contracts and the triceps relaxes", "the triceps contracts and the biceps relaxes", "both muscles relax", "the tendons contract"], answer: 1, feedback: "Straightening the arm: the triceps contracts and the biceps relaxes." },
-      { visual: { type: "arm", only: "bend", labels: false, facts: false }, prompt: "The arm is bent. The red, short muscle on top of the upper arm is the…", options: ["triceps", "tendon", "biceps", "pectoral"], answer: 2, feedback: "When you bend your arm, the biceps (on top of the upper arm) contracts: it is short and hard." },
-      { prompt: "About how many muscles are there in the human body?", options: ["206", "33", "650", "12"], answer: 2, feedback: "There are around 650 muscles in the human body. (206 is the number of bones.)" },
-      { prompt: "Can bones move without muscles?", options: ["Yes, bones move by themselves", "Yes, if they are long bones", "Only the skull can", "No, bones cannot move without muscles"], answer: 3, feedback: "Bones cannot move without muscles. Muscles pull on the bones through the tendons." },
-      { prompt: "When a muscle relaxes, it gets…", options: ["longer", "shorter", "heavier", "harder"], answer: 0, feedback: "A relaxed muscle gets longer. A contracted muscle gets shorter." }
+      { prompt: "The muscular system is made up of…", options: ["muscles and bones", "muscles and tendons", "bones and joints", "tendons and organs"], answer: 1, feedback: "Muscles and tendons." },
+      { prompt: "When a muscle contracts, it gets…", options: ["longer", "softer", "shorter", "heavier"], answer: 2, feedback: "Contract = shorter. Relax = longer." },
+      { prompt: "Tendons attach muscles to…", options: ["organs", "bones", "the skin", "other muscles"], answer: 1, feedback: "Tendons attach muscles to bones." },
+      { visual: { type: "arm", only: "bend", labels: false, facts: false }, prompt: "The arm is bent. The red, short muscle on top is the…", options: ["triceps", "tendon", "pectoral", "biceps"], answer: 3, feedback: "The biceps contracts when you bend your arm." },
+      { prompt: "When you bend your arm…", options: ["the biceps contracts and the triceps relaxes", "the triceps contracts and the biceps relaxes", "both muscles contract", "both muscles relax"], answer: 0, feedback: "Bend: biceps contracts, triceps relaxes. Straighten: the other way round." }
     ]
   }
   ]
@@ -1058,10 +807,13 @@ function selectTopic(index) {
   els.topicSummary.textContent = topic.summary;
   els.topicNumber.textContent = String(index + 1).padStart(2, "0");
   els.topicDefinition.innerHTML = topic.definition;
+  /* Steps and example are optional: a lean topic has only the key idea, one visual and the memory trick. */
+  const hasSteps = !!(topic.steps && topic.steps.length), hasExample = !!topic.example;
   els.stepsTitle.textContent = topic.stepsTitle || UI.stepsTitle;
-  els.topicSteps.innerHTML = topic.steps.map(step => `<li><span>${step}</span></li>`).join("");
+  els.topicSteps.innerHTML = (topic.steps || []).map(step => `<li><span>${step}</span></li>`).join("");
   els.exampleTitle.textContent = topic.exampleTitle || UI.exampleTitle;
-  els.topicExample.innerHTML = topic.example;
+  els.topicExample.innerHTML = topic.example || "";
+  if (els.lessonGrid) { els.stepsCard.classList.toggle("hidden", !hasSteps); els.exampleCard.classList.toggle("hidden", !hasExample); els.lessonGrid.classList.toggle("hidden", !hasSteps && !hasExample); }
   els.topicTip.innerHTML = topic.tip;
   renderLessonVisual(topic);
   els.topicSelect.value = index;
